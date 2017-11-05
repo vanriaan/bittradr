@@ -10,3 +10,4 @@ target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputF
 target/surefire-reports/com.paddavoet.bittradr.MyResourceTest.txt
 target/surefire-reports/TEST-com.paddavoet.bittradr.MyResourceTest.xml
 target/bittradr/WEB-INF/web.xml
+/target/

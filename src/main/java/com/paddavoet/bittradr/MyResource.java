@@ -5,6 +5,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.paddavoet.bittradr.heroku.Main;
+import com.paddavoet.bittradr.integration.responses.bitfinex.QueryMarketResponse;
+
 /**
  * Root resource (exposed at "myresource" path)
  */
@@ -20,6 +23,18 @@ public class MyResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getIt() {
-        return "Hello, Heroku!";
+    	Main.initialise();
+    	QueryMarketResponse response = null;     		
+     	try {
+     	  	response = Main.BIT_FIN_EX_API.queryMarket();
+     	}
+     	catch (Exception e) {
+     		
+     		return "Somefink went wonk!!" + e.getMessage();
+     	}
+    	
+     	
+     	return "Hello, Heroku! Last Price: " + response.getLastPrice();
+     	
     }
 }

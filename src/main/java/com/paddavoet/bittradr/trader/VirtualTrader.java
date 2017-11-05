@@ -14,7 +14,7 @@ public class VirtualTrader implements Trader {
 			
 			status = TraderStatus.BUYING;
 			double spending = fundManager.getCashFund().getAmount();
-			double bitcoinBought = spending/ExchangeRates.BITCOIN_PRICE;
+			double bitcoinBought = spending/ExchangeRates.getBitcoinUSDPrice();
 			
 			fundManager.getBitcoinFund().addBitcoin(bitcoinBought);
 			fundManager.getCashFund().setAmount(0);
@@ -30,7 +30,7 @@ public class VirtualTrader implements Trader {
 			status = TraderStatus.SELLING;
 			
 			double selling = fundManager.getBitcoinFund().getAmount();
-			double bitcoinSoldFor = selling*ExchangeRates.BITCOIN_PRICE;
+			double bitcoinSoldFor = selling*ExchangeRates.getBitcoinUSDPrice();
 			
 			fundManager.getBitcoinFund().setAmount(0);
 			fundManager.getCashFund().setAmount(fundManager.getCashFund().getAmount() + bitcoinSoldFor);
