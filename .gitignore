@@ -15,3 +15,5 @@ target/bittradr/WEB-INF/web.xml
 .settings/org.eclipse.wst.common.component
 target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
 *.MF
+*.component
+target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
