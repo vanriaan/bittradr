@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>BitTradr</title>
+<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+<script>
+	$(document).ready(function() {
+		setInterval(fetchCurrentPrice, 1000);
+	});
+
+	function fetchCurrentPrice() {
+		$.get({
+			url : "/api/bitcoin/currentPrice",
+			success : updateCurrentPrice,
+		});
+	}
+
+	function updateCurrentPrice(currentPrice) {
+		$("#currentPrice").html(
+				"Current USD Price for 1 Bitcoin is: $" + currentPrice);
+	}
+</script>
+</head>
+<body>
+	<p id="currentPrice" th:text="'Current USD Price for 1 Bitcoin is: $' + ${currentPrice} + '!'" />
+</body>
+</html>

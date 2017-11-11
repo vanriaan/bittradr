@@ -1,13 +1,15 @@
-package com.paddavoet.bittradr.integration;
+package com.paddavoet.bittradr.component.integration;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
+import org.springframework.stereotype.Component;
 
 import com.paddavoet.bittradr.integration.responses.bitfinex.QueryMarketResponse;
 
+@Component
 public class BitFinExAPI {
 	public static final String API_ROOT = "https://api.bitfinex.com/v1";
 	public static final String API_RESOURCE_TICKER = "pubticker/";

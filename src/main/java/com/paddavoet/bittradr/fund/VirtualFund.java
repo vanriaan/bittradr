@@ -1,11 +1,13 @@
 package com.paddavoet.bittradr.fund;
 
+import java.math.BigDecimal;
+
 public class VirtualFund implements Fund {
 	
 	private Currency currency;
-	private double amount;
+	private BigDecimal amount;
 	
-	public VirtualFund(Currency currency, Float amount) {
+	public VirtualFund(Currency currency, BigDecimal amount) {
 		this.currency = currency;
 		this.amount = amount;
 	}
@@ -16,12 +18,12 @@ public class VirtualFund implements Fund {
 	}
 
 	@Override
-	public double getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 
 	@Override
-	public void setAmount(double amount) {
+	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
 

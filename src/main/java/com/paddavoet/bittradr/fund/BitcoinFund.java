@@ -1,8 +1,10 @@
 package com.paddavoet.bittradr.fund;
 
+import java.math.BigDecimal;
+
 public class BitcoinFund implements Fund {
 	
-	private double amount;
+	private BigDecimal amount;
 	
 	@Override
 	public Currency getCurrency() {
@@ -10,18 +12,18 @@ public class BitcoinFund implements Fund {
 	}
 
 	@Override
-	public double getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 
 	@Override
-	public void setAmount(double amount) {
+	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
 
-	public double addBitcoin(double amount)
+	public BigDecimal addBitcoin(BigDecimal amount)
 	{
-		this.amount += amount;
+		this.amount.add(amount);
 		return this.amount;
 	}
 

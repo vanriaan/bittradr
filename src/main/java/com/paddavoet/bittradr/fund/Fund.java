@@ -1,7 +1,9 @@
 package com.paddavoet.bittradr.fund;
 
+import java.math.BigDecimal;
+
 public interface Fund {
 	Currency getCurrency();
-	double getAmount();
-	void setAmount(double amount);
+	BigDecimal getAmount();
+	void setAmount(BigDecimal amount);
 }
