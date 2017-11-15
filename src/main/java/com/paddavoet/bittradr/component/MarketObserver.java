@@ -62,13 +62,13 @@ public class MarketObserver {
 				velocity.setMagnitude(BigDecimal.ZERO);
 			}
 
-			velocity.setDirection(TradeValueDirection.UNCHANGED);
-			
 			if (previousValue.compareTo(currentValue) == -1) {
 				velocity.setDirection(TradeValueDirection.UP);
 			}
 			else if (previousValue.compareTo(currentValue) == 1) {
 				velocity.setDirection(TradeValueDirection.DOWN);
+			} else {
+				velocity.setDirection(TradeValueDirection.UNCHANGED);
 			}
 			
 			LOGGER.info("Added new Velocity. Direction [{}] and magnitude [{}]", velocity.getDirection(), velocity.getMagnitude());
