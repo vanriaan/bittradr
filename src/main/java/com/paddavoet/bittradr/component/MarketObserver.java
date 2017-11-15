@@ -21,7 +21,6 @@ import com.paddavoet.bittradr.market.TradeVelocity;
  *
  */
 @Component
-@Scope("Singleton")
 public class MarketObserver {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(MarketObserver.class);
