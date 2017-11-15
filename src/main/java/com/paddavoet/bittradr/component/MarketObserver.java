@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.paddavoet.bittradr.integration.responses.bitfinex.QueryMarketResponse;
@@ -21,6 +22,7 @@ import com.paddavoet.bittradr.market.TradeVelocity;
  *
  */
 @Component
+@Scope("Singleton")
 public class MarketObserver {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(MarketObserver.class);
@@ -59,20 +61,15 @@ public class MarketObserver {
 			} else {
 				velocity.setMagnitude(BigDecimal.ZERO);
 			}
-			
-			TradeValueDirection direction = TradeValueDirection.UNCHANGED;
+
+			velocity.setDirection(TradeValueDirection.UNCHANGED);
 			
 			if (previousValue.compareTo(currentValue) == -1) {
-				direction = TradeValueDirection.UP;
+				velocity.setDirection(TradeValueDirection.UP);
 			}
-			else if (previousValue.compareTo(currentValue) == 0) {
-				direction = TradeValueDirection.UNCHANGED;
+			else if (previousValue.compareTo(currentValue) == 1) {
+				velocity.setDirection(TradeValueDirection.DOWN);
 			}
-			else {
-				direction = TradeValueDirection.DOWN;
-			}
-			
-			velocity.setDirection(direction);
 			
 			LOGGER.info("Added new Velocity. Direction [{}] and magnitude [{}]", velocity.getDirection(), velocity.getMagnitude());
 		}
