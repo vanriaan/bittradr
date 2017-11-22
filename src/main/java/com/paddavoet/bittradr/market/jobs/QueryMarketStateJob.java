@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.paddavoet.bittradr.application.ApplicationConfig;
-import com.paddavoet.bittradr.integration.responses.bitfinex.QueryMarketResponse;
+import com.paddavoet.bittradr.integration.response.bitfinex.QueryMarketResponse;
 import com.paddavoet.bittradr.service.MarketService;
 
 @Component

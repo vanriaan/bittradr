@@ -7,16 +7,16 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.paddavoet.bittradr.integration.responses.bitfinex.QueryMarketResponse;
+import com.paddavoet.bittradr.integration.response.bitfinex.QueryMarketResponse;
 import com.paddavoet.bittradr.market.ExchangeRates;
 import com.paddavoet.bittradr.market.TradeValueDirection;
 import com.paddavoet.bittradr.market.TradeVelocity;
 
 /**
- * Should be a singleton!
- * 
+ *
  * @author Riaan
  *
  */
@@ -44,9 +44,10 @@ public class MarketObserver {
 			
 			BigDecimal previousValue = previous.getTradeValue();
 			LOGGER.debug("previous value {}", previousValue);
+
 			BigDecimal currentValue = response.getLastPrice();
 			LOGGER.debug("current value {}", currentValue);
-			
+
 			BigDecimal absoluteDifference = previousValue.subtract(currentValue).abs();
 			LOGGER.debug("abs difference {}", absoluteDifference);
 			
@@ -55,25 +56,18 @@ public class MarketObserver {
 				BigDecimal magnitude = percentageChanged.multiply(new BigDecimal(100.00000));
 				
 				velocity.setMagnitude(magnitude);
+
+				if (previousValue.compareTo(currentValue) == -1) {
+					velocity.setDirection(TradeValueDirection.UP);
+				} else {
+					velocity.setDirection(TradeValueDirection.DOWN);
+				}
 				
 			} else {
 				velocity.setMagnitude(BigDecimal.ZERO);
+				velocity.setDirection(TradeValueDirection.UNCHANGED);
 			}
-			
-			TradeValueDirection direction = TradeValueDirection.UNCHANGED;
-			
-			if (previousValue.compareTo(currentValue) == -1) {
-				direction = TradeValueDirection.UP;
-			}
-			else if (previousValue.compareTo(currentValue) == 0) {
-				direction = TradeValueDirection.UNCHANGED;
-			}
-			else {
-				direction = TradeValueDirection.DOWN;
-			}
-			
-			velocity.setDirection(direction);
-			
+
 			LOGGER.info("Added new Velocity. Direction [{}] and magnitude [{}]", velocity.getDirection(), velocity.getMagnitude());
 		}
 		

@@ -1,4 +1,4 @@
-package com.paddavoet.bittradr.integration.responses.bitfinex;
+package com.paddavoet.bittradr.integration.response.bitfinex;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
