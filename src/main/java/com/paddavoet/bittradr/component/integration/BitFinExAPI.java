@@ -32,10 +32,12 @@ import org.springframework.util.StringUtils;
 
 import com.paddavoet.bittradr.integration.request.bitfinex.Order;
 import com.paddavoet.bittradr.integration.response.bitfinex.QueryMarketResponse;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 @Component
 public class BitFinExAPI {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BitFinExAPI.class);
+	private static final String TRADING_PAIR = "BTCUSD";
 
 	private String API_KEY;
 	private String API_SECRET;
@@ -46,6 +48,7 @@ public class BitFinExAPI {
 	public static final String API_ROOT = "https://api.bitfinex.com/v1";
 	public static final String API_RESOURCE_TICKER = "pubticker/";
 	public static final String API_RESOURCE_ORDERS = "orders";
+	public static final String API_RESOURCE_PAST_TRADES = "mytrades";
 	public static final String API_RESOURCE_BITCOIN_USD = "btcusd";
 
 	private Client jaxrsClient = ClientBuilder.newClient();
@@ -150,6 +153,89 @@ public class BitFinExAPI {
 		return orders;
 	}
 
+	public Object getTradeHistory() {
+		JSONObject jsonResponse = null;
+//		List<Order> orders = new ArrayList<>();
+
+		if (StringUtils.isEmpty(API_KEY) || StringUtils.isEmpty(API_SECRET)) {
+			LOGGER.error(
+					"This is an Authenticated API call, API Key and API Secret are required. None were found in configuration!");
+		}
+
+		HttpURLConnection conn = null;
+
+		String urlPath = "/v1/" + API_RESOURCE_PAST_TRADES;
+		String method = "POST";
+
+		try {
+
+			URL url = new URL(API_ROOT + "/" + API_RESOURCE_PAST_TRADES + "?symbol=BTCUSD&timestamp=1444141857.0");
+//			URL url = new URL("https://api.bitfinex.com/v1/mytrades/?symbol=BTCUSD&timestamp=1144141857.0&until=4444141857.0");
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod(method);
+
+			conn.setDoOutput(true);
+			conn.setDoInput(true);
+
+			addAuthenticationHeaders(conn, urlPath + "?symbol=BTCUSD&timestamp=1444141857.0");
+
+			// read the response
+			InputStream in = new BufferedInputStream(conn.getInputStream());
+			BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			StringBuilder responseStrBuilder = new StringBuilder("{\"myTrades\":");
+
+			String inputStr;
+			while ((inputStr = streamReader.readLine()) != null) {
+				responseStrBuilder.append(inputStr);
+			}
+
+			jsonResponse = new JSONObject(responseStrBuilder.append("}").toString());
+
+		} catch (MalformedURLException e) {
+			LOGGER.error(e.getMessage());
+		} catch (ProtocolException e) {
+			LOGGER.error(e.getMessage());
+		} catch (IOException e) {
+
+			String errMsg = e.getLocalizedMessage();
+
+			if (conn != null) {
+				try {
+					errMsg += " -> " + convertStreamToString(conn.getErrorStream());
+					LOGGER.error(errMsg, e);
+				} catch (IOException e1) {
+					errMsg += " Error on reading error-stream. -> " + e1.getLocalizedMessage();
+					LOGGER.error(errMsg, e);
+				}
+			} else {
+				LOGGER.error(e.getMessage());
+			}
+		} catch (JSONException e) {
+			String msg = "Error on setting up the connection to server";
+			LOGGER.error(msg, e);
+		} finally {
+			if (conn != null) {
+				conn.disconnect();
+			}
+		}
+
+		//TODO: Convert to List of objects
+		if (jsonResponse != null) {
+			LOGGER.info(jsonResponse.toString());
+//			JSONArray jsonOrders = jsonResponse.getJSONArray("orders");
+//
+//			if (jsonOrders.length() > 0) {
+//				for(int i = 0; i < jsonOrders.length(); i++)
+//				{
+//					Order order = new Order(jsonOrders.getJSONObject(i));
+//					orders.add(order);
+//				}
+//			}
+		}
+
+		return jsonResponse;//		throw new NotImplementedException();
+	}
+
 	/**
 	 * This will take the {@link HttpURLConnection} and add the necessary headers for an authenticated API call to BitFinEx. The urlPath parameter is required, as it is used in the encoded payload generation.
 	 * 
@@ -160,6 +246,7 @@ public class BitFinExAPI {
 		JSONObject jo = new JSONObject();
 		jo.put("request", urlPath);
 		jo.put("nonce", Long.toString(getNonce()));
+		jo.put("symbol", TRADING_PAIR);
 
 		// API v1
 		String payload = jo.toString();
