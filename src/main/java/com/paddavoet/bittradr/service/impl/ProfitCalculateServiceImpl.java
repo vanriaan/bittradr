@@ -4,6 +4,7 @@ import com.paddavoet.bittradr.service.MarketService;
 import com.paddavoet.bittradr.service.ProfitCalculateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.math.BigDecimal;
 
@@ -44,6 +45,7 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
         BigDecimal profit = sellValue.subtract(BUY_VALUE).subtract(buyFee).subtract(sellFee);
         System.out.println(profit);
         System.out.println("---------------------------------------");
-        return profit;
+//        return profit;
+        throw new NotImplementedException();
     }
 }

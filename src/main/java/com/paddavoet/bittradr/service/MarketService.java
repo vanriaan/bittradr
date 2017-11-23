@@ -13,5 +13,6 @@ public interface MarketService {
 	void handleQueryMarketResponse(QueryMarketResponse response);
 	
 	List<Order> getOrders();
-	
+
+	String getTradeHistory();
 }

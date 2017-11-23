@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.paddavoet.bittradr.integration.request.bitfinex.Order;
 import com.paddavoet.bittradr.service.MarketService;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 @RestController
 @RequestMapping("/api/bitcoin")
@@ -29,10 +30,15 @@ public class BitcoinAPIController {
 	}
 	
 	@RequestMapping(value = "/orders", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
-	public String orders(Model model) {
-
+	public List<Order> orders(Model model) {
     	List<Order> orders = marketService.getOrders();
-    	return "not yet implemented";
+		return orders;
+	}
+
+	@RequestMapping(value = "/tradeHistory", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
+	public String tradeHistory(Model model) {
+		String tradeHistory = marketService.getTradeHistory();
+		return tradeHistory;
 	}
 
 }

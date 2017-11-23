@@ -35,4 +35,9 @@ public class MarketServiceImpl implements MarketService {
 		return ApplicationConfig.BIT_FIN_EX_API.getOrders();
 	}
 
+	@Override
+	public String getTradeHistory() {
+		//TODO: Convert to List of objects
+		return ApplicationConfig.BIT_FIN_EX_API.getTradeHistory().toString();
+	}
 }
