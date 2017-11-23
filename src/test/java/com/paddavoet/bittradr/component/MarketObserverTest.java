@@ -1,6 +1,6 @@
 package com.paddavoet.bittradr.component;
 
-import com.paddavoet.bittradr.integration.responses.bitfinex.QueryMarketResponse;
+import com.paddavoet.bittradr.integration.response.bitfinex.QueryMarketResponse;
 import com.paddavoet.bittradr.market.TradeValueDirection;
 import com.paddavoet.bittradr.market.TradeVelocity;
 
