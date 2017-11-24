@@ -3,6 +3,7 @@ package com.paddavoet.bittradr.service.impl;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.paddavoet.bittradr.integration.request.bitfinex.PastTrade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,8 +37,7 @@ public class MarketServiceImpl implements MarketService {
 	}
 
 	@Override
-	public String getTradeHistory() {
-		//TODO: Convert to List of objects
-		return ApplicationConfig.BIT_FIN_EX_API.getTradeHistory().toString();
+	public List<PastTrade> getTradeHistory() {
+		return ApplicationConfig.BIT_FIN_EX_API.getTradeHistory();
 	}
 }

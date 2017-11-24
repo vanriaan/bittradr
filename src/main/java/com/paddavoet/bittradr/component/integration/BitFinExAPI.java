@@ -22,6 +22,8 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paddavoet.bittradr.integration.request.bitfinex.PastTrade;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,12 +34,13 @@ import org.springframework.util.StringUtils;
 
 import com.paddavoet.bittradr.integration.request.bitfinex.Order;
 import com.paddavoet.bittradr.integration.response.bitfinex.QueryMarketResponse;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 @Component
 public class BitFinExAPI {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BitFinExAPI.class);
 	private static final String TRADING_PAIR = "BTCUSD";
+
+	private static final ObjectMapper mapper = new ObjectMapper();
 
 	private String API_KEY;
 	private String API_SECRET;
@@ -115,19 +118,7 @@ public class BitFinExAPI {
 			LOGGER.error(e.getMessage());
 		} catch (IOException e) {
 
-			String errMsg = e.getLocalizedMessage();
-
-			if (conn != null) {
-				try {
-					errMsg += " -> " + convertStreamToString(conn.getErrorStream());
-					LOGGER.error(errMsg, e);
-				} catch (IOException e1) {
-					errMsg += " Error on reading error-stream. -> " + e1.getLocalizedMessage();
-					LOGGER.error(errMsg, e);
-				}
-			} else {
-				LOGGER.error(e.getMessage());
-			}
+			ioExceptionOccurred(conn, e);
 		} catch (JSONException e) {
 			String msg = "Error on setting up the connection to server";
 			LOGGER.error(msg, e);
@@ -153,9 +144,13 @@ public class BitFinExAPI {
 		return orders;
 	}
 
-	public Object getTradeHistory() {
+	/**
+	 * Get the trade history for the current account
+	 * @return List<PastTrade>
+	 */
+	public List<PastTrade> getTradeHistory() {
 		JSONObject jsonResponse = null;
-//		List<Order> orders = new ArrayList<>();
+		List<PastTrade> pastTrades = new ArrayList<>();
 
 		if (StringUtils.isEmpty(API_KEY) || StringUtils.isEmpty(API_SECRET)) {
 			LOGGER.error(
@@ -169,15 +164,14 @@ public class BitFinExAPI {
 
 		try {
 
-			URL url = new URL(API_ROOT + "/" + API_RESOURCE_PAST_TRADES + "?symbol=BTCUSD&timestamp=1444141857.0");
-//			URL url = new URL("https://api.bitfinex.com/v1/mytrades/?symbol=BTCUSD&timestamp=1144141857.0&until=4444141857.0");
+			URL url = new URL(API_ROOT + "/" + API_RESOURCE_PAST_TRADES);
 			conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod(method);
 
 			conn.setDoOutput(true);
 			conn.setDoInput(true);
 
-			addAuthenticationHeaders(conn, urlPath + "?symbol=BTCUSD&timestamp=1444141857.0");
+			addAuthenticationHeaders(conn, urlPath);
 
 			// read the response
 			InputStream in = new BufferedInputStream(conn.getInputStream());
@@ -196,20 +190,7 @@ public class BitFinExAPI {
 		} catch (ProtocolException e) {
 			LOGGER.error(e.getMessage());
 		} catch (IOException e) {
-
-			String errMsg = e.getLocalizedMessage();
-
-			if (conn != null) {
-				try {
-					errMsg += " -> " + convertStreamToString(conn.getErrorStream());
-					LOGGER.error(errMsg, e);
-				} catch (IOException e1) {
-					errMsg += " Error on reading error-stream. -> " + e1.getLocalizedMessage();
-					LOGGER.error(errMsg, e);
-				}
-			} else {
-				LOGGER.error(e.getMessage());
-			}
+			ioExceptionOccurred(conn, e);
 		} catch (JSONException e) {
 			String msg = "Error on setting up the connection to server";
 			LOGGER.error(msg, e);
@@ -222,18 +203,44 @@ public class BitFinExAPI {
 		//TODO: Convert to List of objects
 		if (jsonResponse != null) {
 			LOGGER.info(jsonResponse.toString());
-//			JSONArray jsonOrders = jsonResponse.getJSONArray("orders");
-//
-//			if (jsonOrders.length() > 0) {
-//				for(int i = 0; i < jsonOrders.length(); i++)
-//				{
-//					Order order = new Order(jsonOrders.getJSONObject(i));
-//					orders.add(order);
-//				}
-//			}
+			JSONArray jsonOrders = jsonResponse.getJSONArray("myTrades");
+
+			if (jsonOrders.length() > 0) {
+				for(int i = 0; i < jsonOrders.length(); i++)
+				{
+					System.out.println(jsonOrders.getJSONObject(i));
+					try {
+						PastTrade pastTrade = mapper.readValue(jsonOrders.getJSONObject(i).toString(), PastTrade.class);
+						pastTrades.add(pastTrade);
+					} catch (IOException e) {
+						LOGGER.error("Unable to unmarshall " + jsonOrders.getJSONObject(i).toString(), e);
+					}
+				}
+			}
 		}
 
-		return jsonResponse;//		throw new NotImplementedException();
+		return pastTrades;
+	}
+
+	/**
+	 * Called if an IOException occurred during URL call to avoid error handling duplication
+	 * @param conn
+	 * @param e
+	 */
+	private void ioExceptionOccurred(HttpURLConnection conn, IOException e) {
+		String errMsg = e.getLocalizedMessage();
+
+		if (conn != null) {
+            try {
+                errMsg += " -> " + convertStreamToString(conn.getErrorStream());
+                LOGGER.error(errMsg, e);
+            } catch (IOException e1) {
+                errMsg += " Error on reading error-stream. -> " + e1.getLocalizedMessage();
+                LOGGER.error(errMsg, e);
+            }
+        } else {
+            LOGGER.error(e.getMessage());
+        }
 	}
 
 	/**
