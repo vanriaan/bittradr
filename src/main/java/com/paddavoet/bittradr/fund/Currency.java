@@ -1,7 +1,7 @@
 package com.paddavoet.bittradr.fund;
 
 public enum Currency {
-	BITCOIN("BTC", "BC"),
+	BTC("BTC", "BC"),
 	ZAR("ZAR", "R"),
 	USD("USD", "$");
 	

@@ -8,7 +8,7 @@ public class BitcoinFund implements Fund {
 	
 	@Override
 	public Currency getCurrency() {
-		return Currency.BITCOIN;
+		return Currency.BTC;
 	}
 
 	@Override
