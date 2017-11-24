@@ -75,7 +75,9 @@ public class MarketObserver {
 			LOGGER.info("Added new Velocity. Direction [{}] and magnitude [{}]", velocity.getDirection(), velocity.getMagnitude());
 		}
 
-		tradeVelocityRepository.save(velocity);
+		if (tradeVelocityRepository != null) {
+			tradeVelocityRepository.save(velocity);
+		}
 		getVelocities().add(velocity);
 	}
 	
