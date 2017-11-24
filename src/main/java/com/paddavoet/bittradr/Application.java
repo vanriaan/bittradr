@@ -1,5 +1,6 @@
-package com.paddavoet.bittradr.application;
+package com.paddavoet.bittradr;
 
+import com.paddavoet.bittradr.application.ApplicationConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

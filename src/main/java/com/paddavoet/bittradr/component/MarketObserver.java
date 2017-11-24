@@ -5,9 +5,10 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.paddavoet.bittradr.repository.TradeVelocityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Scope;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.paddavoet.bittradr.integration.response.bitfinex.QueryMarketResponse;
@@ -22,7 +23,10 @@ import com.paddavoet.bittradr.market.TradeVelocity;
  */
 @Component
 public class MarketObserver {
-	
+
+	@Autowired
+	private TradeVelocityRepository tradeVelocityRepository;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(MarketObserver.class);
 	
 	private ExchangeRates exchangeRates = new ExchangeRates();
@@ -70,7 +74,8 @@ public class MarketObserver {
 
 			LOGGER.info("Added new Velocity. Direction [{}] and magnitude [{}]", velocity.getDirection(), velocity.getMagnitude());
 		}
-		
+
+		tradeVelocityRepository.save(velocity);
 		getVelocities().add(velocity);
 	}
 	
