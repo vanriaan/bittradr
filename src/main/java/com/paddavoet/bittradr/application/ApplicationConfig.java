@@ -4,10 +4,8 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Properties;
 
 import com.paddavoet.bittradr.market.jobs.SyncTradeHistoryJob;
 import org.quartz.JobDetail;
@@ -17,6 +15,7 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,18 +34,11 @@ public class ApplicationConfig {
 	private static final Logger LOG = LoggerFactory.getLogger(ApplicationConfig.class);
 
 	public static BitFinExAPI BIT_FIN_EX_API;
-
 	private static Scheduler SCHEDULER;
-
 	private static boolean initialized;
-	
-	private static Properties CONFIG = new Properties();
-	private static InputStream PROP_INPUT_STREAM = null;
-	
+
 	public static void initialise(ConfigurableApplicationContext appContext) {
-		readPropertiesFile();
-		
-		BIT_FIN_EX_API = new BitFinExAPI(CONFIG.getProperty("api.bitfinex.apikey"), CONFIG.getProperty("api.bitfinex.apisecret"));
+		BIT_FIN_EX_API = new BitFinExAPI();
 		
 		try {
 			SCHEDULER = StdSchedulerFactory.getDefaultScheduler();
@@ -62,25 +54,6 @@ public class ApplicationConfig {
 			}
 		} catch (SchedulerException e) {
 			LOG.error("Initialization error with Scheduler: ", e);
-		}
-	}
-
-	private static void readPropertiesFile() {
-		try {
-			PROP_INPUT_STREAM = ApplicationConfig.class.getClassLoader().getResourceAsStream("config.properties");
-
-			// load a properties file
-			CONFIG.load(PROP_INPUT_STREAM);
-		} catch (IOException ex) {
-			LOG.error("Exception occured whilst trying to read properties file: " + ex.getMessage());
-		} finally {
-			if (PROP_INPUT_STREAM != null) {
-				try {
-					PROP_INPUT_STREAM.close();
-				} catch (IOException e) {
-					LOG.error("Exception occured whilst trying to close the properties file InputStream: " + e.getMessage());
-				}
-			}
 		}
 	}
 
@@ -131,4 +104,6 @@ public class ApplicationConfig {
 				.withSchedule(simpleSchedule().withIntervalInSeconds(60).repeatForever()).build();
 		SCHEDULER.scheduleJob(syncTradeHistoryJob, syncTradeHistoryTrigger);
 	}
+
+
 }

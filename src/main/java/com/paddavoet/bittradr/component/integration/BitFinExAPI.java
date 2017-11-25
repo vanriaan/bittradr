@@ -23,6 +23,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paddavoet.bittradr.application.GlobalProperties;
 import com.paddavoet.bittradr.entity.PastTradeEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,14 +58,10 @@ public class BitFinExAPI {
 	private Client jaxrsClient = ClientBuilder.newClient();
 
 	public BitFinExAPI() {
-		// TODO Auto-generated constructor stub
+		this.API_KEY = GlobalProperties.BIT_FIN_EX_API_KEY;
+		this.API_SECRET = GlobalProperties.BIT_FIN_EX_API_SECRET;
 	}
 	
-	public BitFinExAPI(String apiKey, String apiSecret) {
-		this.API_KEY = apiKey;
-		this.API_SECRET = apiSecret;
-	}
-
 	public QueryMarketResponse queryMarket() {
 
 		JSONObject jsonResponse = new JSONObject(
