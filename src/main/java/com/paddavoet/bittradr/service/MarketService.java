@@ -16,4 +16,12 @@ public interface MarketService {
 	List<Order> getOrders();
 
 	List<PastTrade> getTradeHistory();
+
+	PastTrade getLastBuy();
+
+	PastTrade getLastSell();
+
+	PastTrade getLastTransaction();
+
+	BigDecimal getBuySellFee(boolean buy);
 }

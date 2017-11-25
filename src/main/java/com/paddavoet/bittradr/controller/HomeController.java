@@ -37,7 +37,13 @@ public class HomeController {
 
 	@RequestMapping("/calculateProfit")
 	@ResponseBody
-	String calulateProfit(Model model, @QueryParam("buying")boolean buying {
-		return profitCalculateService.calculateProfit(buying).toPlainString();
+	String calulateProfit(Model model){
+    	boolean buying = profitCalculateService.isBuying();
+    	String type = "Selling ";
+    	if (buying) {
+    		type = "Buying ";
+		}
+
+		return type + profitCalculateService.calculateProfit(buying).toPlainString();
 	}
 }

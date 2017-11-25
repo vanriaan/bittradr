@@ -8,6 +8,7 @@ import javax.ws.rs.core.MediaType;
 import com.paddavoet.bittradr.integration.request.bitfinex.PastTrade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,6 +41,14 @@ public class BitcoinAPIController {
 	public List<PastTrade> tradeHistory(Model model) {
 		List<PastTrade> tradeHistory = marketService.getTradeHistory();
 		return tradeHistory;
+	}
+
+	@RequestMapping(value = "/feePercentage/{buySell}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
+	public String feePercentage(Model model, @PathVariable("buySell") String buySell) {
+		BigDecimal buyFeePercentage = marketService.getBuySellFee(true);
+		BigDecimal sellFeePercentage = marketService.getBuySellFee(false);
+
+		return "Buy fee: " + buyFeePercentage + " Sell fee: " + sellFeePercentage;
 	}
 
 }

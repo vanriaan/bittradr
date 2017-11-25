@@ -1,6 +1,7 @@
 package com.paddavoet.bittradr.service.impl;
 
 import com.paddavoet.bittradr.fund.Currency;
+import com.paddavoet.bittradr.integration.request.bitfinex.PastTrade;
 import com.paddavoet.bittradr.service.MarketService;
 import com.paddavoet.bittradr.service.ProfitCalculateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +17,15 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
     @Autowired
     private MarketService marketService;
 
-    private BigDecimal BUY_FEE_PERCENTAGE = new BigDecimal(0.002);
-    private BigDecimal SELL_FEE_PERCENTAGE = new BigDecimal(0.001);
-
-    private BigDecimal BUY_VALUE = new BigDecimal(1589.45);
-    private BigDecimal BUY_PRICE = new BigDecimal(8300);
+    private BigDecimal BUY_FEE_PERCENTAGE = new BigDecimal(0.00200);
+    private BigDecimal SELL_FEE_PERCENTAGE = new BigDecimal(0.00050);
 
     private BigDecimal currentBtcPrice;
+
+    @Override
+    public boolean isBuying() {
+        return marketService.getLastTransaction().getType().equalsIgnoreCase("sell");
+    }
 
     @Override
     public BigDecimal calculateProfit(boolean buying) {
@@ -34,34 +37,51 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
     }
 
     private BigDecimal calculateProfitBuyingBTC() {
-        //BTC value before selling - BTC value now buying - fee
-        BigDecimal btcLastSold = new BigDecimal(0.19);
-        BigDecimal buyUsdAmount = new BigDecimal(1588.43);
+        PastTrade lastSell = marketService.getLastSell();
 
-        BigDecimal buyBtcAmt = buyUsdAmount.divide(currentBtcPrice, 6, RoundingMode.HALF_UP);
-        BigDecimal buyFeeBtc = buyUsdAmount.multiply(BUY_FEE_PERCENTAGE).divide(currentBtcPrice, 6, RoundingMode.HALF_UP);
-        BigDecimal profitBtc = buyBtcAmt.subtract(buyFeeBtc).subtract(btcLastSold);
-        BigDecimal profitUsd = profitBtc.multiply(currentBtcPrice);
-        System.out.println("------------------SELL-----------------");
-        System.out.println("Buying BTC for $ " + buyUsdAmount);
+        //Last sold BTC
+        BigDecimal btcLastSold = lastSell.getAmount();
+        //How much BTC will that buy me now
+        BigDecimal lastSoldUsdAmount = btcLastSold.multiply(lastSell.getPrice());
+        BigDecimal buyNowBtcValue = lastSoldUsdAmount.divide(currentBtcPrice, 5, RoundingMode.HALF_DOWN);
+
+        BigDecimal btcProfitWithoutFee = buyNowBtcValue.subtract(btcLastSold);
+        BigDecimal buyFeeBtc = btcLastSold.multiply(BUY_FEE_PERCENTAGE);
+        BigDecimal profitBtc = btcProfitWithoutFee.subtract(buyFeeBtc);
+
+        System.out.println("------------------BUY BTC-----------------");
+        System.out.println("Buying BTC for $ " + lastSoldUsdAmount);
         System.out.println("BTC sold: " + btcLastSold);
-        System.out.println("BTC value: " + buyBtcAmt);
+        System.out.println("BTC buying: " + buyNowBtcValue);
         System.out.println("BTC fee: " + buyFeeBtc);
         System.out.println("BTC profit: " + profitBtc);
+        System.out.println();
+
+        return profitBtc;
+    }
+
+    private BigDecimal calculateProfitSellingBTC() {
+        PastTrade lastBuy = marketService.getLastBuy();
+
+        //Last bought BTC
+        BigDecimal btcLastBought = lastBuy.getAmount();
+        //How much USD will that get me now
+        BigDecimal lastBoughtUsdAmount = btcLastBought.multiply(lastBuy.getPrice());
+
+        BigDecimal sellNowUsdValue = btcLastBought.multiply(currentBtcPrice);
+
+        BigDecimal usdProfitWithoutFee = sellNowUsdValue.subtract(lastBoughtUsdAmount);
+        BigDecimal sellFeeUsd = lastBoughtUsdAmount.multiply(SELL_FEE_PERCENTAGE);
+        BigDecimal profitUsd = usdProfitWithoutFee.subtract(sellFeeUsd);
+
+        System.out.println("------------------BUY BTC-----------------");
+        System.out.println("Selling BTC for $ " + lastBoughtUsdAmount);
+        System.out.println("USD bought: " + lastBoughtUsdAmount);
+        System.out.println("USD selling: " + sellNowUsdValue);
+        System.out.println("USD fee: " + sellFeeUsd);
         System.out.println("USD profit: " + profitUsd);
         System.out.println();
 
         return profitUsd;
-    }
-
-    private BigDecimal calculateProfitSellingBTC() {
-        System.out.println("------------------SELL BTC-----------------");
-//        System.out.println("Selling BTC " + sellBtcAmount);
-//        BigDecimal sellUsdAmount = sellBtcAmount.multiply(currentBtcPrice);
-//        System.out.println("USD Value: " + sellUsdAmount);
-//        BigDecimal buyFeeUsd = sellUsdAmount.multiply(SELL_FEE_PERCENTAGE);
-//        System.out.println("USD fee: " + buyFeeUsd);
-
-        return BigDecimal.ZERO;
     }
 }
