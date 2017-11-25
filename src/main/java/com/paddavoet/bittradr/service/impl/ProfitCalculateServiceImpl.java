@@ -48,6 +48,7 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
         BigDecimal btcProfitWithoutFee = buyNowBtcValue.subtract(btcLastSold);
         BigDecimal buyFeeBtc = btcLastSold.multiply(BUY_FEE_PERCENTAGE);
         BigDecimal profitBtc = btcProfitWithoutFee.subtract(buyFeeBtc);
+        BigDecimal profitUsd = profitBtc.multiply(currentBtcPrice);
 
         System.out.println("------------------BUY BTC-----------------");
         System.out.println("Buying BTC for $ " + lastSoldUsdAmount);
@@ -55,9 +56,10 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
         System.out.println("BTC buying: " + buyNowBtcValue);
         System.out.println("BTC fee: " + buyFeeBtc);
         System.out.println("BTC profit: " + profitBtc);
+        System.out.println("USD profit: " + profitUsd);
         System.out.println();
 
-        return profitBtc;
+        return profitUsd;
     }
 
     private BigDecimal calculateProfitSellingBTC() {
