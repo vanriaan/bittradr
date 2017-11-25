@@ -1,10 +1,12 @@
-package com.paddavoet.bittradr.integration.request.bitfinex;
+package com.paddavoet.bittradr.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.paddavoet.bittradr.fund.Currency;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 
+@Document(collection = "TradeVelocity")
 public class PastTrade {
     private BigDecimal amount;
     @JsonProperty("fee_amount")

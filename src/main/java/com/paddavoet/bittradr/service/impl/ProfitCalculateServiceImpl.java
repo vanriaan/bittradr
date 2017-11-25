@@ -1,12 +1,10 @@
 package com.paddavoet.bittradr.service.impl;
 
-import com.paddavoet.bittradr.fund.Currency;
-import com.paddavoet.bittradr.integration.request.bitfinex.PastTrade;
+import com.paddavoet.bittradr.entity.PastTrade;
 import com.paddavoet.bittradr.service.MarketService;
 import com.paddavoet.bittradr.service.ProfitCalculateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

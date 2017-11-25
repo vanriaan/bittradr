@@ -3,7 +3,7 @@ package com.paddavoet.bittradr.service.impl;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.paddavoet.bittradr.integration.request.bitfinex.PastTrade;
+import com.paddavoet.bittradr.entity.PastTrade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

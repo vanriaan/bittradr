@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.paddavoet.bittradr.integration.request.bitfinex.Order;
-import com.paddavoet.bittradr.integration.request.bitfinex.PastTrade;
+import com.paddavoet.bittradr.entity.PastTrade;
 import com.paddavoet.bittradr.integration.response.bitfinex.QueryMarketResponse;
 
 public interface MarketService {

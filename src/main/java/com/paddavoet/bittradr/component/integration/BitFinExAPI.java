@@ -23,7 +23,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.paddavoet.bittradr.integration.request.bitfinex.PastTrade;
+import com.paddavoet.bittradr.entity.PastTrade;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

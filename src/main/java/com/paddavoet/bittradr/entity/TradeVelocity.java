@@ -1,9 +1,9 @@
-package com.paddavoet.bittradr.market;
+package com.paddavoet.bittradr.entity;
 
+import com.paddavoet.bittradr.market.TradeValueDirection;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.annotation.Generated;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 

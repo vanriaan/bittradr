@@ -2,7 +2,7 @@ package com.paddavoet.bittradr.component;
 
 import com.paddavoet.bittradr.integration.response.bitfinex.QueryMarketResponse;
 import com.paddavoet.bittradr.market.TradeValueDirection;
-import com.paddavoet.bittradr.market.TradeVelocity;
+import com.paddavoet.bittradr.entity.TradeVelocity;
 
 import org.junit.Before;
 import org.junit.Test;
