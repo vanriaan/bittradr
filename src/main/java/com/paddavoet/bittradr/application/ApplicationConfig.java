@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
+import com.paddavoet.bittradr.market.jobs.SyncTradeHistoryJob;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -92,36 +93,42 @@ public class ApplicationConfig {
 	}
 
 	private static void initializeScheduledJobs(ConfigurableApplicationContext appContext) throws SchedulerException {
-
-		
+		//QueryMarketStateJob
 		AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
 	    jobFactory.setApplicationContext(appContext);
 	    SCHEDULER.setJobFactory(jobFactory);
 	    
 		// define the job and tie it to our MyJob class
-		JobDetail job = newJob(QueryMarketStateJob.class).withIdentity("queryMarketState", "group1").build();
+		JobDetail queryMarketStateJob = newJob(QueryMarketStateJob.class).withIdentity("queryMarketState", "group1").build();
 
 		// Tell quartz to schedule the job using our trigger
-		if (!SCHEDULER.checkExists(job.getKey())) {
-			LOG.info("Job does NOT exist for key {}, scheduling the job now.", job.getKey());
+		if (!SCHEDULER.checkExists(queryMarketStateJob.getKey())) {
+			LOG.info("Job does NOT exist for key {}, scheduling the job now.", queryMarketStateJob.getKey());
 
 			// Trigger the job to run now, and then repeat every 60 seconds
-			Trigger trigger = newTrigger().withIdentity("trigger1", "group1").forJob(job).startNow()
+			Trigger trigger = newTrigger().withIdentity("trigger1", "group1").forJob(queryMarketStateJob).startNow()
 					.withSchedule(simpleSchedule().withIntervalInSeconds(60).repeatForever()).build();
 
-			SCHEDULER.scheduleJob(job, trigger);
+			SCHEDULER.scheduleJob(queryMarketStateJob, trigger);
 		} else {
-			LOG.info("Job already exists for key {}, scheduling the existing job", job.getKey());
+			LOG.info("Job already exists for key {}, scheduling the existing job", queryMarketStateJob.getKey());
 
 			// Trigger the job to run now, and then repeat every 60 seconds
-			Trigger newTrigger = newTrigger().withIdentity("trigger_new", "group1").forJob(job).startNow()
+			Trigger newTrigger = newTrigger().withIdentity("trigger_new", "group1").forJob(queryMarketStateJob).startNow()
 					.withSchedule(simpleSchedule().withIntervalInSeconds(60).repeatForever()).build();
 
-			List<? extends Trigger> oldTriggers = SCHEDULER.getTriggersOfJob(job.getKey());
+			List<? extends Trigger> oldTriggers = SCHEDULER.getTriggersOfJob(queryMarketStateJob.getKey());
 
 			for (Trigger oldTrigger : oldTriggers) {
 				SCHEDULER.rescheduleJob(oldTrigger.getKey(), newTrigger);
 			}
 		}
+
+
+		//SyncTradeHistoryJob
+		JobDetail syncTradeHistoryJob = newJob(SyncTradeHistoryJob.class).withIdentity("syncTradeHistoryJob", "group1").build();
+		Trigger syncTradeHistoryTrigger = newTrigger().withIdentity("syncTradeHistoryTrigger", "group1").forJob(syncTradeHistoryJob).startNow()
+				.withSchedule(simpleSchedule().withIntervalInSeconds(60).repeatForever()).build();
+		SCHEDULER.scheduleJob(syncTradeHistoryJob, syncTradeHistoryTrigger);
 	}
 }

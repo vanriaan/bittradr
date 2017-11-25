@@ -6,8 +6,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 
-@Document(collection = "TradeVelocity")
-public class PastTrade {
+@Document(collection = "PastTradeEntity")
+public class PastTradeEntity {
     private BigDecimal amount;
     @JsonProperty("fee_amount")
     private BigDecimal fee;

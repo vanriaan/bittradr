@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
-import com.paddavoet.bittradr.entity.PastTrade;
+import com.paddavoet.bittradr.entity.PastTradeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,8 +37,8 @@ public class BitcoinAPIController {
 	}
 
 	@RequestMapping(value = "/tradeHistory", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
-	public List<PastTrade> tradeHistory(Model model) {
-		List<PastTrade> tradeHistory = marketService.getTradeHistory();
+	public List<PastTradeEntity> tradeHistory(Model model) {
+		List<PastTradeEntity> tradeHistory = marketService.getTradeHistory();
 		return tradeHistory;
 	}
 

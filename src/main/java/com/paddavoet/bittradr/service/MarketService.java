@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.paddavoet.bittradr.integration.request.bitfinex.Order;
-import com.paddavoet.bittradr.entity.PastTrade;
+import com.paddavoet.bittradr.entity.PastTradeEntity;
 import com.paddavoet.bittradr.integration.response.bitfinex.QueryMarketResponse;
 
 public interface MarketService {
@@ -15,13 +15,13 @@ public interface MarketService {
 	
 	List<Order> getOrders();
 
-	List<PastTrade> getTradeHistory();
+	List<PastTradeEntity> getTradeHistory();
 
-	PastTrade getLastBuy();
+	PastTradeEntity getLastBuy();
 
-	PastTrade getLastSell();
+	PastTradeEntity getLastSell();
 
-	PastTrade getLastTransaction();
+	PastTradeEntity getLastTransaction();
 
 	BigDecimal getBuySellFee(boolean buy);
 }
