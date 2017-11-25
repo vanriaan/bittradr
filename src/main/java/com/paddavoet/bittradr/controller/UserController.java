@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.ws.rs.QueryParam;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -14,6 +15,11 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserRepository userRepository;
+
+    @RequestMapping("")
+    public Principal user(Principal principal) {
+        return principal;
+    }
 
     @RequestMapping("add")
     public String addUser(@QueryParam("email")String email, @QueryParam("apiKey")String apiKey, @QueryParam("apiSecret")String apiSecret) {
@@ -33,5 +39,10 @@ public class UserController {
     public List<UserEntity> getAllUsers() {
         List<UserEntity> users = userRepository.findAll();
         return users;
+    }
+
+    @RequestMapping("hello")
+    public Principal sayHello(Principal principal) {
+        return principal;
     }
 }
