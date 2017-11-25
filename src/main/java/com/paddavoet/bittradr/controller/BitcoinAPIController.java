@@ -1,12 +1,15 @@
 package com.paddavoet.bittradr.controller;
 
 import java.math.BigDecimal;
+import java.security.Principal;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.ws.rs.core.MediaType;
 
-import com.paddavoet.bittradr.entity.PastTrade;
+import com.paddavoet.bittradr.entity.PastTradeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,8 +40,9 @@ public class BitcoinAPIController {
 	}
 
 	@RequestMapping(value = "/tradeHistory", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
-	public List<PastTrade> tradeHistory(Model model) {
-		List<PastTrade> tradeHistory = marketService.getTradeHistory();
+	public List<PastTradeEntity> tradeHistory() {
+//		String userEmail = ((LinkedHashMap<String, String>) ((OAuth2Authentication) principal).getUserAuthentication().getDetails()).get("email");
+		List<PastTradeEntity> tradeHistory = marketService.getTradeHistory();
 		return tradeHistory;
 	}
 

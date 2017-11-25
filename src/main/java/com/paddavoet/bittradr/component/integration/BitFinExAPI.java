@@ -23,7 +23,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.paddavoet.bittradr.entity.PastTrade;
+import com.paddavoet.bittradr.entity.PastTradeEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -146,11 +146,11 @@ public class BitFinExAPI {
 
 	/**
 	 * Get the trade history for the current account
-	 * @return List<PastTrade>
+	 * @return List<PastTradeEntity>
 	 */
-	public List<PastTrade> getTradeHistory() {
+	public List<PastTradeEntity> getTradeHistory() {
 		JSONObject jsonResponse = null;
-		List<PastTrade> pastTrades = new ArrayList<>();
+		List<PastTradeEntity> pastTradeEntities = new ArrayList<>();
 
 		if (StringUtils.isEmpty(API_KEY) || StringUtils.isEmpty(API_SECRET)) {
 			LOGGER.error(
@@ -210,8 +210,8 @@ public class BitFinExAPI {
 				{
 					System.out.println(jsonOrders.getJSONObject(i));
 					try {
-						PastTrade pastTrade = mapper.readValue(jsonOrders.getJSONObject(i).toString(), PastTrade.class);
-						pastTrades.add(pastTrade);
+						PastTradeEntity pastTradeEntity = mapper.readValue(jsonOrders.getJSONObject(i).toString(), PastTradeEntity.class);
+						pastTradeEntities.add(pastTradeEntity);
 					} catch (IOException e) {
 						LOGGER.error("Unable to unmarshall " + jsonOrders.getJSONObject(i).toString(), e);
 					}
@@ -219,7 +219,7 @@ public class BitFinExAPI {
 			}
 		}
 
-		return pastTrades;
+		return pastTradeEntities;
 	}
 
 	/**

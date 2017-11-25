@@ -1,6 +1,6 @@
 package com.paddavoet.bittradr.service.impl;
 
-import com.paddavoet.bittradr.entity.PastTrade;
+import com.paddavoet.bittradr.entity.PastTradeEntity;
 import com.paddavoet.bittradr.service.MarketService;
 import com.paddavoet.bittradr.service.ProfitCalculateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
     }
 
     private BigDecimal calculateProfitBuyingBTC() {
-        PastTrade lastSell = marketService.getLastSell();
+        PastTradeEntity lastSell = marketService.getLastSell();
 
         //Last sold BTC
         BigDecimal btcLastSold = lastSell.getAmount();
@@ -61,7 +61,7 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
     }
 
     private BigDecimal calculateProfitSellingBTC() {
-        PastTrade lastBuy = marketService.getLastBuy();
+        PastTradeEntity lastBuy = marketService.getLastBuy();
 
         //Last bought BTC
         BigDecimal btcLastBought = lastBuy.getAmount();
