@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import com.paddavoet.bittradr.integration.response.bitfinex.QueryMarketResponse;
 import com.paddavoet.bittradr.market.ExchangeRates;
 import com.paddavoet.bittradr.market.TradeValueDirection;
-import com.paddavoet.bittradr.market.TradeVelocity;
+import com.paddavoet.bittradr.entity.TradeVelocity;
 
 /**
  *

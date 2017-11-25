@@ -1,5 +1,6 @@
-package com.paddavoet.bittradr.market;
+package com.paddavoet.bittradr.entity;
 
+import com.paddavoet.bittradr.market.TradeValueDirection;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,7 +11,6 @@ import java.time.LocalDateTime;
 public class TradeVelocity {
 
 	@Id
-	private long id;
 	private LocalDateTime time;
 	private TradeValueDirection direction;
 	private BigDecimal magnitude;
@@ -20,12 +20,12 @@ public class TradeVelocity {
 		time = LocalDateTime.now();
 	}
 
-	public long getId() {
-		return id;
+	public LocalDateTime getTime() {
+		return time;
 	}
 
-	public void setId(long id) {
-		this.id = id;
+	public void setTime(LocalDateTime time) {
+		this.time = time;
 	}
 
 	public TradeValueDirection getDirection() {
