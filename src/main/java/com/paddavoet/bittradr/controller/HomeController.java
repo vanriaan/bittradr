@@ -38,13 +38,13 @@ public class HomeController {
 
 	@RequestMapping("/calculateProfit")
 	@ResponseBody
-	String calulateProfit(Model model){
+	String calulateProfit(Model model, @QueryParam("price") BigDecimal price){
     	boolean buying = profitCalculateService.isBuying();
     	String type = "Selling ";
     	if (buying) {
     		type = "Buying ";
 		}
 
-		return type + profitCalculateService.calculateProfit(buying).toPlainString();
+		return type + profitCalculateService.calculateProfit(buying, price).toPlainString();
 	}
 }

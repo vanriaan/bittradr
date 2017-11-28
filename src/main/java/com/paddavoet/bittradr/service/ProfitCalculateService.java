@@ -5,5 +5,5 @@ import java.math.BigDecimal;
 public interface ProfitCalculateService {
     boolean isBuying();
 
-    BigDecimal calculateProfit(boolean buying);
+    BigDecimal calculateProfit(boolean buying, BigDecimal price);
 }
