@@ -1,6 +1,7 @@
 package com.paddavoet.bittradr.service.impl;
 
 import com.paddavoet.bittradr.entity.PastTradeEntity;
+import com.paddavoet.bittradr.profit.calculator.Profit;
 import com.paddavoet.bittradr.service.MarketService;
 import com.paddavoet.bittradr.service.ProfitCalculateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
     private BigDecimal SELL_FEE_PERCENTAGE = new BigDecimal(0.00050);
 
     private BigDecimal currentBtcPrice;
+    private Profit profit;
 
     @Override
     public boolean isBuying() {
@@ -26,7 +28,8 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
     }
 
     @Override
-    public BigDecimal calculateProfit(boolean buying, BigDecimal price) {
+    public Profit calculateProfit(boolean buying, BigDecimal price) {
+        profit = new Profit();
         currentBtcPrice = marketService.getCurrentBitcoinPrice();
 
         BigDecimal profitPrice = currentBtcPrice;
@@ -35,12 +38,15 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
         }
 
         if (buying) {
-            return calculateProfitBuyingBTC(profitPrice);
+            calculateProfitBuyingBTC(profitPrice);
+        } else {
+            calculateProfitSellingBTC(profitPrice);
         }
-        return calculateProfitSellingBTC(profitPrice);
+
+        return profit;
     }
 
-    private BigDecimal calculateProfitBuyingBTC(BigDecimal price) {
+    private void calculateProfitBuyingBTC(BigDecimal price) {
         PastTradeEntity lastSell = marketService.getLastSell();
 
         //Last sold BTC
@@ -55,6 +61,15 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
         BigDecimal profitBtc = btcProfitWithoutFee.subtract(buyFeeBtc);
         BigDecimal profitUsd = profitBtc.multiply(price);
 
+        profit.setBuying(true);
+        profit.setBuySellUsdAmt(lastSoldUsdAmount);
+        profit.setLastBoughtSold(btcLastSold);
+        profit.setBuyingSellingAmt(buyNowBtcValue);
+        profit.setBtcFee(buyFeeBtc);
+        profit.setUsdFee(buyFeeUsd);
+        profit.setBtcProfit(profitBtc);
+        profit.setUsdProfit(profitUsd);
+
         System.out.println("------------------BUY BTC-----------------");
         System.out.println("Buying BTC for $ " + lastSoldUsdAmount);
         System.out.println("BTC sold: " + btcLastSold);
@@ -64,11 +79,9 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
         System.out.println("BTC profit: " + profitBtc);
         System.out.println("USD profit: " + profitUsd);
         System.out.println();
-
-        return profitUsd;
     }
 
-    private BigDecimal calculateProfitSellingBTC(BigDecimal price) {
+    private void calculateProfitSellingBTC(BigDecimal price) {
         PastTradeEntity lastBuy = marketService.getLastBuy();
 
         //Last bought BTC
@@ -82,6 +95,12 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
         BigDecimal sellFeeUsd = lastBoughtUsdAmount.multiply(SELL_FEE_PERCENTAGE);
         BigDecimal profitUsd = usdProfitWithoutFee.subtract(sellFeeUsd);
 
+        profit.setBuying(false);
+        profit.setLastBoughtSold(lastBoughtUsdAmount);
+        profit.setBuyingSellingAmt(sellNowUsdValue);
+        profit.setUsdFee(sellFeeUsd);
+        profit.setUsdProfit(profitUsd);
+
         System.out.println("------------------BUY BTC-----------------");
         System.out.println("Selling BTC for $ " + lastBoughtUsdAmount);
         System.out.println("USD bought: " + lastBoughtUsdAmount);
@@ -89,7 +108,5 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
         System.out.println("USD fee: " + sellFeeUsd);
         System.out.println("USD profit: " + profitUsd);
         System.out.println();
-
-        return profitUsd;
     }
 }

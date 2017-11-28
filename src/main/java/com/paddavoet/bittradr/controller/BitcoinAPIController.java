@@ -1,21 +1,18 @@
 package com.paddavoet.bittradr.controller;
 
 import java.math.BigDecimal;
-import java.security.Principal;
-import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.paddavoet.bittradr.entity.PastTradeEntity;
 import com.paddavoet.bittradr.entity.WalletBalanceEntity;
+import com.paddavoet.bittradr.profit.calculator.Profit;
+import com.paddavoet.bittradr.service.ProfitCalculateService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.paddavoet.bittradr.integration.request.bitfinex.Order;
 import com.paddavoet.bittradr.service.MarketService;
@@ -26,6 +23,9 @@ public class BitcoinAPIController {
 
 	@Autowired
 	private MarketService marketService;
+
+	@Autowired
+	private ProfitCalculateService profitCalculateService;
 
 	@RequestMapping(value = "/currentPrice", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
 	public String currentPrice(Model model) {
@@ -57,6 +57,17 @@ public class BitcoinAPIController {
 		BigDecimal sellFeePercentage = marketService.getBuySellFee(false);
 
 		return "Buy fee: " + buyFeePercentage + " Sell fee: " + sellFeePercentage;
+	}
+
+	@RequestMapping(value = "/calculateProfit", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
+	Profit calulateProfit(@QueryParam("price") BigDecimal price){
+		boolean buying = profitCalculateService.isBuying();
+		String type = "Selling ";
+		if (buying) {
+			type = "Buying ";
+		}
+
+		return profitCalculateService.calculateProfit(buying, price);
 	}
 
 }

@@ -1,9 +1,11 @@
 package com.paddavoet.bittradr.service;
 
+import com.paddavoet.bittradr.profit.calculator.Profit;
+
 import java.math.BigDecimal;
 
 public interface ProfitCalculateService {
     boolean isBuying();
 
-    BigDecimal calculateProfit(boolean buying, BigDecimal price);
+    Profit calculateProfit(boolean buying, BigDecimal price);
 }
