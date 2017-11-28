@@ -20,6 +20,10 @@ public interface MarketService {
 
 	List<WalletBalanceEntity> getWalletBalances();
 
+	BigDecimal getBtcExchangeBalance();
+
+	BigDecimal getUsdExchangeBalance();
+
 	PastTradeEntity getLastBuy();
 
 	PastTradeEntity getLastSell();

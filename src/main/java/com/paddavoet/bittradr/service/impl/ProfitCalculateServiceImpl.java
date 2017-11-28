@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 @Service
 public class ProfitCalculateServiceImpl implements ProfitCalculateService {
@@ -16,8 +15,8 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
     @Autowired
     private MarketService marketService;
 
-    private BigDecimal BUY_FEE_PERCENTAGE = new BigDecimal(0.00200);
-    private BigDecimal SELL_FEE_PERCENTAGE = new BigDecimal(0.00050);
+    private BigDecimal BUY_FEE_MULTIPLIER = new BigDecimal(0.001);
+    private BigDecimal SELL_FEE_MULTIPLIER = new BigDecimal(0.001);
 
     private BigDecimal currentBtcPrice;
     private Profit profit;
@@ -29,7 +28,6 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
 
     @Override
     public Profit calculateProfit(boolean buying, BigDecimal price) {
-        profit = new Profit();
         currentBtcPrice = marketService.getCurrentBitcoinPrice();
 
         BigDecimal profitPrice = currentBtcPrice;
@@ -46,67 +44,81 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
         return profit;
     }
 
-    private void calculateProfitBuyingBTC(BigDecimal price) {
+    private void calculateProfitBuyingBTC(BigDecimal currentBtcPrice) {
+        profit = null;
+
+        //Payout if buying
+        BigDecimal walletValue = marketService.getUsdExchangeBalance();
+        BigDecimal walletAmount = walletValue.divide(currentBtcPrice, 10, BigDecimal.ROUND_HALF_DOWN);
+        BigDecimal exchangeFee = walletValue.multiply(BUY_FEE_MULTIPLIER);
+        BigDecimal exchangePayout = walletValue.subtract(exchangeFee);
+
+        //Profit made after last sell
         PastTradeEntity lastSell = marketService.getLastSell();
+        BigDecimal lastSellPrice = lastSell.getPrice();
+        BigDecimal lastSellAmount = lastSell.getAmount();
+        BigDecimal lastSellPayout = lastSellPrice.multiply(lastSellAmount);
+        BigDecimal profitAmount = exchangePayout.subtract(lastSellPayout);
 
-        //Last sold BTC
-        BigDecimal btcLastSold = lastSell.getAmount();
-        //How much BTC will that buy me now
-        BigDecimal lastSoldUsdAmount = btcLastSold.multiply(lastSell.getPrice());
-        BigDecimal buyNowBtcValue = lastSoldUsdAmount.divide(price, 5, RoundingMode.HALF_DOWN);
+        //When to sell again to break equal
+        BigDecimal breakEqualSellFactor = exchangePayout.divide(walletValue, 10, BigDecimal.ROUND_HALF_DOWN);
+        BigDecimal breakEqualSellPrice = currentBtcPrice.multiply(breakEqualSellFactor);
+        //TODO: fee
 
-        BigDecimal btcProfitWithoutFee = buyNowBtcValue.subtract(btcLastSold);
-        BigDecimal buyFeeBtc = btcLastSold.multiply(BUY_FEE_PERCENTAGE);
-        BigDecimal buyFeeUsd = buyFeeBtc.multiply(price);
-        BigDecimal profitBtc = btcProfitWithoutFee.subtract(buyFeeBtc);
-        BigDecimal profitUsd = profitBtc.multiply(price);
-
-        profit.setBuying(true);
-        profit.setBuySellUsdAmt(lastSoldUsdAmount);
-        profit.setLastBoughtSold(btcLastSold);
-        profit.setBuyingSellingAmt(buyNowBtcValue);
-        profit.setBtcFee(buyFeeBtc);
-        profit.setUsdFee(buyFeeUsd);
-        profit.setBtcProfit(profitBtc);
-        profit.setUsdProfit(profitUsd);
-
-        System.out.println("------------------BUY BTC-----------------");
-        System.out.println("Buying BTC for $ " + lastSoldUsdAmount);
-        System.out.println("BTC sold: " + btcLastSold);
-        System.out.println("BTC buying: " + buyNowBtcValue);
-        System.out.println("BTC fee: " + buyFeeBtc);
-        System.out.println("USD fee: " + buyFeeUsd);
-        System.out.println("BTC profit: " + profitBtc);
-        System.out.println("USD profit: " + profitUsd);
-        System.out.println();
+        profit = new Profit(
+                true,
+                currentBtcPrice,
+                walletAmount,
+                walletValue,
+                exchangeFee,
+                exchangePayout,
+                lastSellPrice,
+                lastSellAmount,
+                lastSellPayout,
+                profitAmount,
+                breakEqualSellFactor,
+                breakEqualSellPrice
+            );
     }
 
-    private void calculateProfitSellingBTC(BigDecimal price) {
+    private void calculateProfitSellingBTC(BigDecimal currentBtcPrice) {
+        profit = null;
+
+        //Payout if selling
+        BigDecimal walletAmount = marketService.getBtcExchangeBalance();
+        BigDecimal walletValue = walletAmount.multiply(currentBtcPrice);
+        BigDecimal exchangeFee = walletValue.multiply(SELL_FEE_MULTIPLIER);
+        BigDecimal exchangePayout = walletValue.subtract(exchangeFee);
+
+        //Profit made after last buy
         PastTradeEntity lastBuy = marketService.getLastBuy();
+        BigDecimal lastBuyPrice = lastBuy.getPrice();
+        BigDecimal lastBuyAmount = lastBuy.getAmount();
+        BigDecimal lastBuyPayout = lastBuyPrice.multiply(walletAmount);
+        BigDecimal profitAmount = exchangePayout.subtract(lastBuyPayout);
 
-        //Last bought BTC
-        BigDecimal btcLastBought = lastBuy.getAmount();
-        //How much USD will that get me now
-        BigDecimal lastBoughtUsdAmount = btcLastBought.multiply(lastBuy.getPrice());
+        //When to buy again to break equal
+        BigDecimal breakEqualBuyFactor = exchangePayout.divide(walletValue, 10, BigDecimal.ROUND_HALF_DOWN);
+        BigDecimal breakEqualBuyPrice = currentBtcPrice.multiply(breakEqualBuyFactor);
+//        BigDecimal breakEqualOnePercent = currentBtcPrice.divide(new BigDecimal(99.9));
+//        BigDecimal breakEqualBuyValue = breakEqualOnePercent.multiply(new BigDecimal(100.0));
+//        BigDecimal breakEqualBuyPrice = breakEqualBuyValue.multiply(breakEqualBuyFactor);
 
-        BigDecimal sellNowUsdValue = btcLastBought.multiply(price);
+        //TODO: fee
 
-        BigDecimal usdProfitWithoutFee = sellNowUsdValue.subtract(lastBoughtUsdAmount);
-        BigDecimal sellFeeUsd = lastBoughtUsdAmount.multiply(SELL_FEE_PERCENTAGE);
-        BigDecimal profitUsd = usdProfitWithoutFee.subtract(sellFeeUsd);
-
-        profit.setBuying(false);
-        profit.setLastBoughtSold(lastBoughtUsdAmount);
-        profit.setBuyingSellingAmt(sellNowUsdValue);
-        profit.setUsdFee(sellFeeUsd);
-        profit.setUsdProfit(profitUsd);
-
-        System.out.println("------------------BUY BTC-----------------");
-        System.out.println("Selling BTC for $ " + lastBoughtUsdAmount);
-        System.out.println("USD bought: " + lastBoughtUsdAmount);
-        System.out.println("USD selling: " + sellNowUsdValue);
-        System.out.println("USD fee: " + sellFeeUsd);
-        System.out.println("USD profit: " + profitUsd);
-        System.out.println();
+        profit = new Profit(
+                true,
+                currentBtcPrice,
+                walletAmount,
+                walletValue,
+                exchangeFee,
+                exchangePayout,
+                lastBuyPrice,
+                lastBuyAmount,
+                lastBuyPayout,
+                profitAmount,
+                breakEqualBuyFactor,
+                breakEqualBuyPrice
+        );
     }
 }

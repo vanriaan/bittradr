@@ -47,6 +47,28 @@ public class MarketServiceImpl implements MarketService {
 		return ApplicationConfig.BIT_FIN_EX_API.getWalletBalances();
 	}
 
+	@Override
+	public BigDecimal getBtcExchangeBalance() {
+		BigDecimal value = BigDecimal.ZERO;
+		for (WalletBalanceEntity wallet : ApplicationConfig.BIT_FIN_EX_API.getWalletBalances()) {
+			if (wallet.getCurrency().equalsIgnoreCase("btc") && wallet.getType().equalsIgnoreCase("exchange")) {
+				value = wallet.getAmount();
+			}
+		}
+		return value;
+	}
+
+	@Override
+	public BigDecimal getUsdExchangeBalance() {
+		BigDecimal value = BigDecimal.ZERO;
+		for (WalletBalanceEntity wallet : ApplicationConfig.BIT_FIN_EX_API.getWalletBalances()) {
+			if (wallet.getCurrency().equalsIgnoreCase("usd") && wallet.getType().equalsIgnoreCase("exchange")) {
+				value = wallet.getAmount();
+			}
+		}
+		return value;
+	}
+
 	public PastTradeEntity getLastBuy() {
 		PastTradeEntity lastBuy = new PastTradeEntity();
 		lastBuy.setTimestamp("0");

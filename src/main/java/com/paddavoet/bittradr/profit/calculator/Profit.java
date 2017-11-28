@@ -4,13 +4,32 @@ import java.math.BigDecimal;
 
 public class Profit {
     private boolean buying;
-    private BigDecimal buySellUsdAmt;
-    private BigDecimal lastBoughtSold;
-    private BigDecimal buyingSellingAmt;
-    private BigDecimal btcFee;
-    private BigDecimal usdFee;
-    private BigDecimal btcProfit;
-    private BigDecimal usdProfit;
+    private BigDecimal currentPrice;
+    private BigDecimal walletAmount;
+    private BigDecimal walletValue;
+    private BigDecimal exchangeFee;
+    private BigDecimal exchangePayout;
+    private BigDecimal lastPrice;
+    private BigDecimal lastAmount;
+    private BigDecimal lastPayout;
+    private BigDecimal profitAmount;
+    private BigDecimal breakEqualFactor;
+    private BigDecimal breakEqualPrice;
+
+    public Profit(boolean buying, BigDecimal currentPrice, BigDecimal walletAmount, BigDecimal walletValue, BigDecimal exchangeFee, BigDecimal exchangePayout, BigDecimal lastPrice, BigDecimal lastAmount, BigDecimal lastPayout, BigDecimal profitAmount, BigDecimal breakEqualFactor, BigDecimal breakEqualPrice) {
+        this.buying = buying;
+        this.currentPrice = currentPrice;
+        this.walletAmount = walletAmount;
+        this.walletValue = walletValue;
+        this.exchangeFee = exchangeFee;
+        this.exchangePayout = exchangePayout;
+        this.lastPrice = lastPrice;
+        this.lastAmount = lastAmount;
+        this.lastPayout = lastPayout;
+        this.profitAmount = profitAmount;
+        this.breakEqualFactor = breakEqualFactor;
+        this.breakEqualPrice = breakEqualPrice;
+    }
 
     public boolean isBuying() {
         return buying;
@@ -20,59 +39,91 @@ public class Profit {
         this.buying = buying;
     }
 
-    public BigDecimal getBuySellUsdAmt() {
-        return buySellUsdAmt;
+    public BigDecimal getCurrentPrice() {
+        return currentPrice;
     }
 
-    public void setBuySellUsdAmt(BigDecimal buySellUsdAmt) {
-        this.buySellUsdAmt = buySellUsdAmt;
+    public void setCurrentPrice(BigDecimal currentPrice) {
+        this.currentPrice = currentPrice;
     }
 
-    public BigDecimal getLastBoughtSold() {
-        return lastBoughtSold;
+    public BigDecimal getWalletAmount() {
+        return walletAmount;
     }
 
-    public void setLastBoughtSold(BigDecimal lastBoughtSold) {
-        this.lastBoughtSold = lastBoughtSold;
+    public void setWalletAmount(BigDecimal walletAmount) {
+        this.walletAmount = walletAmount;
     }
 
-    public BigDecimal getBuyingSellingAmt() {
-        return buyingSellingAmt;
+    public BigDecimal getWalletValue() {
+        return walletValue;
     }
 
-    public void setBuyingSellingAmt(BigDecimal buyingSellingAmt) {
-        this.buyingSellingAmt = buyingSellingAmt;
+    public void setWalletValue(BigDecimal walletValue) {
+        this.walletValue = walletValue;
     }
 
-    public BigDecimal getBtcFee() {
-        return btcFee;
+    public BigDecimal getExchangeFee() {
+        return exchangeFee;
     }
 
-    public void setBtcFee(BigDecimal btcFee) {
-        this.btcFee = btcFee;
+    public void setExchangeFee(BigDecimal exchangeFee) {
+        this.exchangeFee = exchangeFee;
     }
 
-    public BigDecimal getUsdFee() {
-        return usdFee;
+    public BigDecimal getExchangePayout() {
+        return exchangePayout;
     }
 
-    public void setUsdFee(BigDecimal usdFee) {
-        this.usdFee = usdFee;
+    public void setExchangePayout(BigDecimal exchangePayout) {
+        this.exchangePayout = exchangePayout;
     }
 
-    public BigDecimal getBtcProfit() {
-        return btcProfit;
+    public BigDecimal getLastPrice() {
+        return lastPrice;
     }
 
-    public void setBtcProfit(BigDecimal btcProfit) {
-        this.btcProfit = btcProfit;
+    public void setLastPrice(BigDecimal lastPrice) {
+        this.lastPrice = lastPrice;
     }
 
-    public BigDecimal getUsdProfit() {
-        return usdProfit;
+    public BigDecimal getLastAmount() {
+        return lastAmount;
     }
 
-    public void setUsdProfit(BigDecimal usdProfit) {
-        this.usdProfit = usdProfit;
+    public void setLastAmount(BigDecimal lastAmount) {
+        this.lastAmount = lastAmount;
+    }
+
+    public BigDecimal getLastPayout() {
+        return lastPayout;
+    }
+
+    public void setLastPayout(BigDecimal lastPayout) {
+        this.lastPayout = lastPayout;
+    }
+
+    public BigDecimal getProfitAmount() {
+        return profitAmount;
+    }
+
+    public void setProfitAmount(BigDecimal profitAmount) {
+        this.profitAmount = profitAmount;
+    }
+
+    public BigDecimal getBreakEqualFactor() {
+        return breakEqualFactor;
+    }
+
+    public void setBreakEqualFactor(BigDecimal breakEqualFactor) {
+        this.breakEqualFactor = breakEqualFactor;
+    }
+
+    public BigDecimal getBreakEqualPrice() {
+        return breakEqualPrice;
+    }
+
+    public void setBreakEqualPrice(BigDecimal breakEqualPrice) {
+        this.breakEqualPrice = breakEqualPrice;
     }
 }
