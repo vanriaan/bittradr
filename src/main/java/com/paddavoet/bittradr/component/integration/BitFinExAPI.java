@@ -25,6 +25,7 @@ import javax.ws.rs.core.MediaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paddavoet.bittradr.application.GlobalProperties;
 import com.paddavoet.bittradr.entity.PastTradeEntity;
+import com.paddavoet.bittradr.entity.WalletBalanceEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,6 +54,7 @@ public class BitFinExAPI {
 	public static final String API_RESOURCE_TICKER = "pubticker/";
 	public static final String API_RESOURCE_ORDERS = "orders";
 	public static final String API_RESOURCE_PAST_TRADES = "mytrades";
+	public static final String API_RESOURCE_WALLET_BALANCES = "balances";
 	public static final String API_RESOURCE_BITCOIN_USD = "btcusd";
 
 	private Client jaxrsClient = ClientBuilder.newClient();
@@ -197,15 +199,13 @@ public class BitFinExAPI {
 			}
 		}
 
-		//TODO: Convert to List of objects
 		if (jsonResponse != null) {
-			LOGGER.info(jsonResponse.toString());
+//			LOGGER.info(jsonResponse.toString());
 			JSONArray jsonOrders = jsonResponse.getJSONArray("myTrades");
 
 			if (jsonOrders.length() > 0) {
 				for(int i = 0; i < jsonOrders.length(); i++)
 				{
-					System.out.println(jsonOrders.getJSONObject(i));
 					try {
 						PastTradeEntity pastTradeEntity = mapper.readValue(jsonOrders.getJSONObject(i).toString(), PastTradeEntity.class);
 						pastTradeEntities.add(pastTradeEntity);
@@ -217,6 +217,83 @@ public class BitFinExAPI {
 		}
 
 		return pastTradeEntities;
+	}
+
+	/**
+	 * Get the trade history for the current account
+	 * @return List<PastTradeEntity>
+	 */
+	public List<WalletBalanceEntity> getWalletBalances() {
+		JSONObject jsonResponse = null;
+		List<WalletBalanceEntity> walletBalances = new ArrayList<>();
+
+		if (StringUtils.isEmpty(API_KEY) || StringUtils.isEmpty(API_SECRET)) {
+			LOGGER.error(
+					"This is an Authenticated API call, API Key and API Secret are required. None were found in configuration!");
+		}
+
+		HttpURLConnection conn = null;
+
+		String urlPath = "/v1/" + API_RESOURCE_WALLET_BALANCES;
+		String method = "POST";
+
+		try {
+
+			URL url = new URL(API_ROOT + "/" + API_RESOURCE_WALLET_BALANCES);
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod(method);
+
+			conn.setDoOutput(true);
+			conn.setDoInput(true);
+
+			addAuthenticationHeaders(conn, urlPath);
+
+			// read the response
+			InputStream in = new BufferedInputStream(conn.getInputStream());
+			BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			StringBuilder responseStrBuilder = new StringBuilder("{\"balances\":");
+
+			String inputStr;
+			while ((inputStr = streamReader.readLine()) != null) {
+				responseStrBuilder.append(inputStr);
+			}
+
+			jsonResponse = new JSONObject(responseStrBuilder.append("}").toString());
+
+		} catch (MalformedURLException e) {
+			LOGGER.error(e.getMessage());
+		} catch (ProtocolException e) {
+			LOGGER.error(e.getMessage());
+		} catch (IOException e) {
+			ioExceptionOccurred(conn, e);
+		} catch (JSONException e) {
+			String msg = "Error on setting up the connection to server";
+			LOGGER.error(msg, e);
+		} finally {
+			if (conn != null) {
+				conn.disconnect();
+			}
+		}
+
+		if (jsonResponse != null) {
+			LOGGER.info(jsonResponse.toString());
+			JSONArray jsonBalances = jsonResponse.getJSONArray("balances");
+
+			if (jsonBalances.length() > 0) {
+				for(int i = 0; i < jsonBalances.length(); i++)
+				{
+					System.out.println(jsonBalances.getJSONObject(i));
+					try {
+						WalletBalanceEntity walletBalanceEntity = mapper.readValue(jsonBalances.getJSONObject(i).toString(), WalletBalanceEntity.class);
+						walletBalances.add(walletBalanceEntity);
+					} catch (IOException e) {
+						LOGGER.error("Unable to unmarshall " + jsonBalances.getJSONObject(i).toString(), e);
+					}
+				}
+			}
+		}
+
+		return walletBalances;
 	}
 
 	/**

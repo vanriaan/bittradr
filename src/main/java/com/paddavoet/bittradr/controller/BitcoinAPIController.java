@@ -8,6 +8,7 @@ import java.util.List;
 import javax.ws.rs.core.MediaType;
 
 import com.paddavoet.bittradr.entity.PastTradeEntity;
+import com.paddavoet.bittradr.entity.WalletBalanceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.ui.Model;
@@ -41,9 +42,13 @@ public class BitcoinAPIController {
 
 	@RequestMapping(value = "/tradeHistory", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
 	public List<PastTradeEntity> tradeHistory() {
-//		String userEmail = ((LinkedHashMap<String, String>) ((OAuth2Authentication) principal).getUserAuthentication().getDetails()).get("email");
 		List<PastTradeEntity> tradeHistory = marketService.getTradeHistory();
 		return tradeHistory;
+	}
+	@RequestMapping(value = "/walletBalances", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
+	public List<WalletBalanceEntity> walletBalances() {
+		List<WalletBalanceEntity> walletBalances = marketService.getWalletBalances();
+		return walletBalances;
 	}
 
 	@RequestMapping(value = "/feePercentage/{buySell}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.paddavoet.bittradr.entity.PastTradeEntity;
+import com.paddavoet.bittradr.entity.WalletBalanceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,11 @@ public class MarketServiceImpl implements MarketService {
 	@Override
 	public List<PastTradeEntity> getTradeHistory() {
 		return ApplicationConfig.BIT_FIN_EX_API.getTradeHistory();
+	}
+
+	@Override
+	public List<WalletBalanceEntity> getWalletBalances() {
+		return ApplicationConfig.BIT_FIN_EX_API.getWalletBalances();
 	}
 
 	public PastTradeEntity getLastBuy() {
