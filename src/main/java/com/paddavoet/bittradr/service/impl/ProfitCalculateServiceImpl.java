@@ -50,8 +50,10 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
         //Payout if buying
         BigDecimal walletValue = marketService.getUsdExchangeBalance();
         BigDecimal walletAmount = walletValue.divide(currentBtcPrice, 10, BigDecimal.ROUND_HALF_DOWN);
-        BigDecimal exchangeFee = walletValue.multiply(BUY_FEE_MULTIPLIER);
-        BigDecimal exchangePayout = walletValue.subtract(exchangeFee);
+        BigDecimal exchangeFee = walletAmount.multiply(BUY_FEE_MULTIPLIER);
+        BigDecimal exchangePayout = walletAmount.subtract(exchangeFee);
+        exchangePayout = exchangePayout.multiply(currentBtcPrice);
+
 
         //Profit made after last sell
         PastTradeEntity lastSell = marketService.getLastSell();
@@ -76,8 +78,8 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
                 lastSellAmount,
                 lastSellPayout,
                 profitAmount,
-                breakEqualSellFactor,
-                breakEqualSellPrice
+                BigDecimal.ZERO,
+                BigDecimal.ZERO
             );
     }
 
@@ -85,29 +87,38 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
         profit = null;
 
         //Payout if selling
-        BigDecimal walletAmount = marketService.getBtcExchangeBalance();
-        BigDecimal walletValue = walletAmount.multiply(currentBtcPrice);
-        BigDecimal exchangeFee = walletValue.multiply(SELL_FEE_MULTIPLIER);
-        BigDecimal exchangePayout = walletValue.subtract(exchangeFee);
+        BigDecimal walletAmount = marketService.getBtcExchangeBalance(); //How much bitcoin in my wallet
+        BigDecimal walletValue = walletAmount.multiply(currentBtcPrice); //How much USD that's worth
+        BigDecimal exchangeFee = walletValue.multiply(SELL_FEE_MULTIPLIER); //How much I'll lose when selling
+        BigDecimal exchangePayout = walletValue.subtract(exchangeFee); //How much I'll get in USD when selling
 
         //Profit made after last buy
         PastTradeEntity lastBuy = marketService.getLastBuy();
-        BigDecimal lastBuyPrice = lastBuy.getPrice();
-        BigDecimal lastBuyAmount = lastBuy.getAmount();
-        BigDecimal lastBuyPayout = lastBuyPrice.multiply(walletAmount);
-        BigDecimal profitAmount = exchangePayout.subtract(lastBuyPayout);
+        BigDecimal lastBuyPrice = lastBuy.getPrice(); //What was the price I bought what I have at
+        BigDecimal lastBuyAmount = lastBuy.getAmount(); //How much bitcoin I bought (Same as walletAmount)
+        BigDecimal lastBuyPayout = lastBuyPrice.multiply(lastBuyAmount); //How much USD was spent to buy it (without fee)
+        BigDecimal lastBuyFee = lastBuyPayout.divide(new BigDecimal(99.9), 10 , BigDecimal.ROUND_HALF_UP); //What was the fee buying
+        BigDecimal profitAmount = exchangePayout.subtract(lastBuyPayout.add(lastBuyFee)); //How much profit from USD->BTC->USD
 
-        //When to buy again to break equal
-        BigDecimal breakEqualBuyFactor = exchangePayout.divide(walletValue, 10, BigDecimal.ROUND_HALF_DOWN);
-        BigDecimal breakEqualBuyPrice = currentBtcPrice.multiply(breakEqualBuyFactor);
-//        BigDecimal breakEqualOnePercent = currentBtcPrice.divide(new BigDecimal(99.9));
-//        BigDecimal breakEqualBuyValue = breakEqualOnePercent.multiply(new BigDecimal(100.0));
-//        BigDecimal breakEqualBuyPrice = breakEqualBuyValue.multiply(breakEqualBuyFactor);
+        //At what price do I need to buy BTC so my BTC value is the same as what I have now (subtracting fees)
+        //walletAmount - trade to USD fee - trade to btc fee
+        BigDecimal tempOne = walletValue.subtract(exchangeFee); //Subtract sell fee
+        BigDecimal buyAgainFee = tempOne.multiply(BUY_FEE_MULTIPLIER); //Subtract buy fee
+        BigDecimal tempTwo = tempOne.subtract(buyAgainFee);
+        BigDecimal buyPrice = currentBtcPrice;
+        BigDecimal buyAmount = tempTwo.divide(buyPrice, 10, BigDecimal.ROUND_HALF_DOWN);//How much btc does that buy me
+        BigDecimal buyAtBuyPriceDifference = buyAmount.subtract(walletAmount);//How much do I lost when buying at the same price again
 
-        //TODO: fee
+        //Reduce buy price until breaking equal
+        while (buyAtBuyPriceDifference.compareTo(BigDecimal.ZERO) == -1) {
+            //While losing money, drop BTC price by $1
+            buyPrice = buyPrice.subtract(BigDecimal.ONE);
+            buyAmount = tempTwo.divide(buyPrice, 10, BigDecimal.ROUND_HALF_DOWN);
+            buyAtBuyPriceDifference = buyAmount.subtract(walletAmount);
+        }
 
         profit = new Profit(
-                true,
+                false,
                 currentBtcPrice,
                 walletAmount,
                 walletValue,
@@ -117,8 +128,8 @@ public class ProfitCalculateServiceImpl implements ProfitCalculateService {
                 lastBuyAmount,
                 lastBuyPayout,
                 profitAmount,
-                breakEqualBuyFactor,
-                breakEqualBuyPrice
+                buyAmount,
+                buyPrice
         );
     }
 }

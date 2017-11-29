@@ -13,10 +13,10 @@ public class Profit {
     private BigDecimal lastAmount;
     private BigDecimal lastPayout;
     private BigDecimal profitAmount;
-    private BigDecimal breakEqualFactor;
+    private BigDecimal breakEqualAmount;
     private BigDecimal breakEqualPrice;
 
-    public Profit(boolean buying, BigDecimal currentPrice, BigDecimal walletAmount, BigDecimal walletValue, BigDecimal exchangeFee, BigDecimal exchangePayout, BigDecimal lastPrice, BigDecimal lastAmount, BigDecimal lastPayout, BigDecimal profitAmount, BigDecimal breakEqualFactor, BigDecimal breakEqualPrice) {
+    public Profit(boolean buying, BigDecimal currentPrice, BigDecimal walletAmount, BigDecimal walletValue, BigDecimal exchangeFee, BigDecimal exchangePayout, BigDecimal lastPrice, BigDecimal lastAmount, BigDecimal lastPayout, BigDecimal profitAmount, BigDecimal breakEqualAmount, BigDecimal breakEqualPrice) {
         this.buying = buying;
         this.currentPrice = currentPrice;
         this.walletAmount = walletAmount;
@@ -27,7 +27,7 @@ public class Profit {
         this.lastAmount = lastAmount;
         this.lastPayout = lastPayout;
         this.profitAmount = profitAmount;
-        this.breakEqualFactor = breakEqualFactor;
+        this.breakEqualAmount = breakEqualAmount;
         this.breakEqualPrice = breakEqualPrice;
     }
 
@@ -111,12 +111,12 @@ public class Profit {
         this.profitAmount = profitAmount;
     }
 
-    public BigDecimal getBreakEqualFactor() {
-        return breakEqualFactor;
+    public BigDecimal getBreakEqualAmount() {
+        return breakEqualAmount;
     }
 
-    public void setBreakEqualFactor(BigDecimal breakEqualFactor) {
-        this.breakEqualFactor = breakEqualFactor;
+    public void setBreakEqualAmount(BigDecimal breakEqualAmount) {
+        this.breakEqualAmount = breakEqualAmount;
     }
 
     public BigDecimal getBreakEqualPrice() {
