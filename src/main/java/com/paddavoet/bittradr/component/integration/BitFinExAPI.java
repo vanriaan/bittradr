@@ -12,9 +12,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -24,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paddavoet.bittradr.application.GlobalProperties;
+import com.paddavoet.bittradr.entity.BalanceHistoryEntity;
 import com.paddavoet.bittradr.entity.PastTradeEntity;
 import com.paddavoet.bittradr.entity.WalletBalanceEntity;
 import org.json.JSONArray;
@@ -54,6 +53,7 @@ public class BitFinExAPI {
 	public static final String API_RESOURCE_TICKER = "pubticker/";
 	public static final String API_RESOURCE_ORDERS = "orders";
 	public static final String API_RESOURCE_PAST_TRADES = "mytrades";
+	public static final String API_RESOURCE_BALANCE_HISTORY = "history";
 	public static final String API_RESOURCE_WALLET_BALANCES = "balances";
 	public static final String API_RESOURCE_BITCOIN_USD = "btcusd";
 
@@ -75,7 +75,6 @@ public class BitFinExAPI {
 	}
 
 	public List<Order> getOrders() {
-		JSONObject jsonResponse = null;
 		List<Order> orders = new ArrayList<>();
 		
 		if (StringUtils.isEmpty(API_KEY) || StringUtils.isEmpty(API_SECRET)) {
@@ -83,50 +82,8 @@ public class BitFinExAPI {
 					"This is an Authenticated API call, API Key and API Secret are required. None were found in configuration!");
 		}
 
-		HttpURLConnection conn = null;
+		JSONObject jsonResponse = doApiCall(API_RESOURCE_ORDERS, "POST", "orders");
 
-		String urlPath = "/v1/" + API_RESOURCE_ORDERS;
-		String method = "POST";
-		
-		try {
-
-			URL url = new URL(API_ROOT + "/" + API_RESOURCE_ORDERS);
-			conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod(method);
-
-			conn.setDoOutput(true);
-			conn.setDoInput(true);
-
-			addAuthenticationHeaders(conn, urlPath);
-
-			// read the response
-			InputStream in = new BufferedInputStream(conn.getInputStream());
-			BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8")); 
-			StringBuilder responseStrBuilder = new StringBuilder("{\"orders\":");
-
-			String inputStr;
-			while ((inputStr = streamReader.readLine()) != null) {
-			    responseStrBuilder.append(inputStr);
-			}
-			
-			jsonResponse = new JSONObject(responseStrBuilder.append("}").toString());
-
-		} catch (MalformedURLException e) {
-			LOGGER.error(e.getMessage());
-		} catch (ProtocolException e) {
-			LOGGER.error(e.getMessage());
-		} catch (IOException e) {
-
-			ioExceptionOccurred(conn, e);
-		} catch (JSONException e) {
-			String msg = "Error on setting up the connection to server";
-			LOGGER.error(msg, e);
-		} finally {
-			if (conn != null) {
-				conn.disconnect();
-			}
-		}
-		
 		if (jsonResponse != null) {
 			LOGGER.info(jsonResponse.toString());
 			JSONArray jsonOrders = jsonResponse.getJSONArray("orders");
@@ -148,7 +105,6 @@ public class BitFinExAPI {
 	 * @return List<PastTradeEntity>
 	 */
 	public List<PastTradeEntity> getTradeHistory() {
-		JSONObject jsonResponse = null;
 		List<PastTradeEntity> pastTradeEntities = new ArrayList<>();
 
 		if (StringUtils.isEmpty(API_KEY) || StringUtils.isEmpty(API_SECRET)) {
@@ -156,48 +112,7 @@ public class BitFinExAPI {
 					"This is an Authenticated API call, API Key and API Secret are required. None were found in configuration!");
 		}
 
-		HttpURLConnection conn = null;
-
-		String urlPath = "/v1/" + API_RESOURCE_PAST_TRADES;
-		String method = "POST";
-
-		try {
-
-			URL url = new URL(API_ROOT + "/" + API_RESOURCE_PAST_TRADES);
-			conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod(method);
-
-			conn.setDoOutput(true);
-			conn.setDoInput(true);
-
-			addAuthenticationHeaders(conn, urlPath);
-
-			// read the response
-			InputStream in = new BufferedInputStream(conn.getInputStream());
-			BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-			StringBuilder responseStrBuilder = new StringBuilder("{\"myTrades\":");
-
-			String inputStr;
-			while ((inputStr = streamReader.readLine()) != null) {
-				responseStrBuilder.append(inputStr);
-			}
-
-			jsonResponse = new JSONObject(responseStrBuilder.append("}").toString());
-
-		} catch (MalformedURLException e) {
-			LOGGER.error(e.getMessage());
-		} catch (ProtocolException e) {
-			LOGGER.error(e.getMessage());
-		} catch (IOException e) {
-			ioExceptionOccurred(conn, e);
-		} catch (JSONException e) {
-			String msg = "Error on setting up the connection to server";
-			LOGGER.error(msg, e);
-		} finally {
-			if (conn != null) {
-				conn.disconnect();
-			}
-		}
+		JSONObject jsonResponse = doApiCall(API_RESOURCE_PAST_TRADES, "POST", "myTrades");
 
 		if (jsonResponse != null) {
 //			LOGGER.info(jsonResponse.toString());
@@ -224,7 +139,6 @@ public class BitFinExAPI {
 	 * @return List<PastTradeEntity>
 	 */
 	public List<WalletBalanceEntity> getWalletBalances() {
-		JSONObject jsonResponse = null;
 		List<WalletBalanceEntity> walletBalances = new ArrayList<>();
 
 		if (StringUtils.isEmpty(API_KEY) || StringUtils.isEmpty(API_SECRET)) {
@@ -232,48 +146,7 @@ public class BitFinExAPI {
 					"This is an Authenticated API call, API Key and API Secret are required. None were found in configuration!");
 		}
 
-		HttpURLConnection conn = null;
-
-		String urlPath = "/v1/" + API_RESOURCE_WALLET_BALANCES;
-		String method = "POST";
-
-		try {
-
-			URL url = new URL(API_ROOT + "/" + API_RESOURCE_WALLET_BALANCES);
-			conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod(method);
-
-			conn.setDoOutput(true);
-			conn.setDoInput(true);
-
-			addAuthenticationHeaders(conn, urlPath);
-
-			// read the response
-			InputStream in = new BufferedInputStream(conn.getInputStream());
-			BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-			StringBuilder responseStrBuilder = new StringBuilder("{\"balances\":");
-
-			String inputStr;
-			while ((inputStr = streamReader.readLine()) != null) {
-				responseStrBuilder.append(inputStr);
-			}
-
-			jsonResponse = new JSONObject(responseStrBuilder.append("}").toString());
-
-		} catch (MalformedURLException e) {
-			LOGGER.error(e.getMessage());
-		} catch (ProtocolException e) {
-			LOGGER.error(e.getMessage());
-		} catch (IOException e) {
-			ioExceptionOccurred(conn, e);
-		} catch (JSONException e) {
-			String msg = "Error on setting up the connection to server";
-			LOGGER.error(msg, e);
-		} finally {
-			if (conn != null) {
-				conn.disconnect();
-			}
-		}
+		JSONObject jsonResponse = doApiCall(API_RESOURCE_WALLET_BALANCES, "POST", "balances");
 
 		if (jsonResponse != null) {
 			LOGGER.info(jsonResponse.toString());
@@ -295,6 +168,45 @@ public class BitFinExAPI {
 
 		return walletBalances;
 	}
+
+	/**
+	 * Get the trade history for the current account
+	 * @return List<Object>
+	 */
+	public List<BalanceHistoryEntity> getBalanceHistory(String currency) {
+		String arrayWrapper = "history";
+		List<BalanceHistoryEntity> histories = new ArrayList<>();
+
+		if (StringUtils.isEmpty(API_KEY) || StringUtils.isEmpty(API_SECRET)) {
+			LOGGER.error(
+					"This is an Authenticated API call, API Key and API Secret are required. None were found in configuration!");
+		}
+		Map<String, String> customHeaderValues = new HashMap<>();
+		customHeaderValues.put("currency", currency);
+
+		JSONObject jsonResponse = doApiCall(API_RESOURCE_BALANCE_HISTORY, "POST", arrayWrapper, customHeaderValues);
+
+		if (jsonResponse != null) {
+//			LOGGER.info(jsonResponse.toString());
+			JSONArray jsonBalances = jsonResponse.getJSONArray(arrayWrapper);
+
+			if (jsonBalances.length() > 0) {
+				for(int i = 0; i < jsonBalances.length(); i++)
+				{
+					System.out.println(jsonBalances.getJSONObject(i));
+					try {
+						BalanceHistoryEntity walletBalanceEntity = mapper.readValue(jsonBalances.getJSONObject(i).toString(), BalanceHistoryEntity.class);
+						histories.add(walletBalanceEntity);
+					} catch (IOException e) {
+						LOGGER.error("Unable to unmarshall " + jsonBalances.getJSONObject(i).toString(), e);
+					}
+				}
+			}
+		}
+
+		return histories;
+	}
+
 
 	/**
 	 * Called if an IOException occurred during URL call to avoid error handling duplication
@@ -322,12 +234,19 @@ public class BitFinExAPI {
 	 * 
 	 * @param conn the {@link HttpURLConnection} to add the authentication headers to.
 	 * @param urlPath the relative path on the BitFinex API that you are accessing. This is required, as it is used in the payload generation which is added as one of the authentication headers. A simple example of what the relative urlPath would look like is: '/v1/orders'
+	 * @param customHeaderValues a map of any custom values to send through in the header
 	 */
-	private void addAuthenticationHeaders(HttpURLConnection conn, String urlPath) {
+	private void addAuthenticationHeaders(HttpURLConnection conn, String urlPath, Map<String, String> customHeaderValues) {
 		JSONObject jo = new JSONObject();
 		jo.put("request", urlPath);
 		jo.put("nonce", Long.toString(getNonce()));
 		jo.put("symbol", TRADING_PAIR);
+		if (null != customHeaderValues) {
+			for (Map.Entry<String, String> custemHeaderValue : customHeaderValues.entrySet()) {
+				jo.put(custemHeaderValue.getKey(), custemHeaderValue.getValue());
+			}
+		}
+
 
 		// API v1
 		String payload = jo.toString();
@@ -391,6 +310,53 @@ public class BitFinExAPI {
 
 	private long getNonce() {
 		return ++nonce;
+	}
+
+	private JSONObject doApiCall(String apiPath, String method, String arrayWrapper) {
+		return doApiCall(apiPath, method, arrayWrapper, null);
+	}
+
+	private JSONObject doApiCall(String apiPath, String method, String arrayWrapper, Map<String, String> customHeaderValues) {
+		JSONObject jsonResponse = null;
+		String urlPath = "/v1/" + apiPath;
+		HttpURLConnection conn = null;
+		try {
+			URL url = new URL(API_ROOT + "/" + apiPath);
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod(method);
+
+			conn.setDoOutput(true);
+			conn.setDoInput(true);
+
+			addAuthenticationHeaders(conn, urlPath, customHeaderValues);
+
+			// read the response
+			InputStream in = new BufferedInputStream(conn.getInputStream());
+			BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			StringBuilder responseStrBuilder = new StringBuilder("{\"" + arrayWrapper + "\":");
+
+			String inputStr;
+			while ((inputStr = streamReader.readLine()) != null) {
+				responseStrBuilder.append(inputStr);
+			}
+
+			jsonResponse = new JSONObject(responseStrBuilder.append("}").toString());
+
+		} catch (MalformedURLException e) {
+			LOGGER.error(e.getMessage());
+		} catch (ProtocolException e) {
+			LOGGER.error(e.getMessage());
+		} catch (IOException e) {
+			ioExceptionOccurred(conn, e);
+		} catch (JSONException e) {
+			String msg = "Error on setting up the connection to server";
+			LOGGER.error(msg, e);
+		} finally {
+			if (conn != null) {
+				conn.disconnect();
+			}
+		}
+		return jsonResponse;
 	}
 
 }

@@ -3,6 +3,7 @@ package com.paddavoet.bittradr.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.paddavoet.bittradr.entity.BalanceHistoryEntity;
 import com.paddavoet.bittradr.entity.WalletBalanceEntity;
 import com.paddavoet.bittradr.integration.request.bitfinex.Order;
 import com.paddavoet.bittradr.entity.PastTradeEntity;
@@ -19,6 +20,8 @@ public interface MarketService {
 	List<PastTradeEntity> getTradeHistory();
 
 	List<WalletBalanceEntity> getWalletBalances();
+
+	List<BalanceHistoryEntity> getBalanceHistory(String currency);
 
 	BigDecimal getBtcExchangeBalance();
 

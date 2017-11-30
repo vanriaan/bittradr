@@ -6,6 +6,7 @@ import java.util.List;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.paddavoet.bittradr.entity.BalanceHistoryEntity;
 import com.paddavoet.bittradr.entity.PastTradeEntity;
 import com.paddavoet.bittradr.entity.WalletBalanceEntity;
 import com.paddavoet.bittradr.profit.calculator.Profit;
@@ -48,6 +49,18 @@ public class BitcoinAPIController {
 	@RequestMapping(value = "/walletBalances", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
 	public List<WalletBalanceEntity> walletBalances() {
 		List<WalletBalanceEntity> walletBalances = marketService.getWalletBalances();
+		return walletBalances;
+	}
+
+	@RequestMapping(value = "/balanceHistory", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
+	public List<BalanceHistoryEntity> getBalanceHistory(@QueryParam("currency") String currency) {
+		List<BalanceHistoryEntity> walletBalances = marketService.getBalanceHistory(currency);
+		for (BalanceHistoryEntity entity : walletBalances) {
+			if (entity.getCurrency().equalsIgnoreCase("BTC") && entity.getBalance().compareTo(new BigDecimal("0.1")) > 0
+					|| entity.getCurrency().equalsIgnoreCase("USD") && entity.getBalance().compareTo(new BigDecimal("100")) > 0) {
+				System.out.println(entity.getCurrency() + " - " + entity.getTimestamp() + " - " + entity.getBalance());
+			}
+		}
 		return walletBalances;
 	}
 

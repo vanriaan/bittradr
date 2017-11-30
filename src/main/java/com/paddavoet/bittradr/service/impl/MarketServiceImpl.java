@@ -3,6 +3,7 @@ package com.paddavoet.bittradr.service.impl;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.paddavoet.bittradr.entity.BalanceHistoryEntity;
 import com.paddavoet.bittradr.entity.PastTradeEntity;
 import com.paddavoet.bittradr.entity.WalletBalanceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,11 @@ public class MarketServiceImpl implements MarketService {
 	@Override
 	public List<WalletBalanceEntity> getWalletBalances() {
 		return ApplicationConfig.BIT_FIN_EX_API.getWalletBalances();
+	}
+
+	@Override
+	public List<BalanceHistoryEntity> getBalanceHistory(String currency) {
+		return ApplicationConfig.BIT_FIN_EX_API.getBalanceHistory(currency);
 	}
 
 	@Override
