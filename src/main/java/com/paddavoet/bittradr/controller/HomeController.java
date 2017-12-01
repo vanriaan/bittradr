@@ -24,5 +24,10 @@ public class HomeController {
     	return "home";
     }
 
-
+	@RequestMapping("/balanceHistory")
+	String balanceHistory(Model model) {
+//		BigDecimal currentPrice = marketService.getCurrentBitcoinPrice();
+//		model.addAttribute("currentPrice", currentPrice);
+		return "balanceHistory";
+	}
 }

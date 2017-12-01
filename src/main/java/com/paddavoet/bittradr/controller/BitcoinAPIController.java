@@ -1,6 +1,8 @@
 package com.paddavoet.bittradr.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.QueryParam;
@@ -55,13 +57,17 @@ public class BitcoinAPIController {
 	@RequestMapping(value = "/balanceHistory", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
 	public List<BalanceHistoryEntity> getBalanceHistory(@QueryParam("currency") String currency) {
 		List<BalanceHistoryEntity> walletBalances = marketService.getBalanceHistory(currency);
+		Collections.reverse(walletBalances);
+		List<BalanceHistoryEntity> walletBalancesFinal = new ArrayList<>();
 		for (BalanceHistoryEntity entity : walletBalances) {
 			if (entity.getCurrency().equalsIgnoreCase("BTC") && entity.getBalance().compareTo(new BigDecimal("0.1")) > 0
-					|| entity.getCurrency().equalsIgnoreCase("USD") && entity.getBalance().compareTo(new BigDecimal("100")) > 0) {
+					|| entity.getCurrency().equalsIgnoreCase("USD") && entity.getBalance().compareTo(new BigDecimal("1000")) > 0) {
 				System.out.println(entity.getCurrency() + " - " + entity.getTimestamp() + " - " + entity.getBalance());
+				walletBalancesFinal.add(entity);
 			}
 		}
-		return walletBalances;
+
+		return walletBalancesFinal;
 	}
 
 	@RequestMapping(value = "/feePercentage/{buySell}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)

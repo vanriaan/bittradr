@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" style="height: 100%">
+<head>
+<title>BitTradr - Balance History</title>
+<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var chartDataBtc = [];
+    var chartLabelsBtc = [];
+    var chartDataUsd = [];
+    var chartLabelsUsd = [];
+
+    function drawChartBtc() {
+        console.log(chartLabelsBtc);
+        console.log(chartDataBtc);
+        var ctx = document.getElementById("btcChart").getContext('2d');
+        var btcChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabelsBtc,
+                datasets: [{
+                    data: chartDataBtc,
+                    label: "BTC",
+                    fill: false,
+                    borderColor: [
+                        'rgba(255,0,0,1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive:false,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+
+    function drawChartUsd() {
+        console.log(chartLabelsUsd);
+        console.log(chartDataUsd);
+        var ctx = document.getElementById("usdChart").getContext('2d');
+        var usdChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabelsUsd,
+                datasets: [{
+                    data: chartDataUsd,
+                    label: "USD",
+                    fill: false,
+                    borderColor: [
+                        'rgba(0,0,255,1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive:false,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+
+    var GetBtcChartData = function () {
+        $.ajax({
+            url: '/api/bitcoin/balanceHistory?currency=BTC',
+            method: 'GET',
+            dataType: 'json',
+            success: function (d) {
+//                console.log(d);
+                for(var i = 0; i < d.length; i++) {
+                    chartDataBtc.push(d[i].balance);
+                    chartLabelsBtc.push(d[i].timestamp);
+                }
+                drawChartBtc();
+            }
+        });
+
+    };
+
+    var GetUsdChartData = function () {
+        $.ajax({
+            url: '/api/bitcoin/balanceHistory?currency=USD',
+            method: 'GET',
+            dataType: 'json',
+            success: function (d) {
+//                console.log(d);
+                for(var i = 0; i < d.length; i++) {
+                    chartDataUsd.push(d[i].balance);
+                    chartLabelsUsd.push(d[i].timestamp);
+                }
+                drawChartUsd();
+            }
+        });
+
+    };
+
+	$(document).ready(function() {
+        GetBtcChartData();
+        setTimeout(GetUsdChartData(), 500);
+    });
+    /*]]>*/
+</script>
+</head>
+<body style="height: 100%">
+	<canvas id="btcChart" style="height:50%;width:100%;"></canvas>
+	<canvas id="usdChart" style="height:50%;width:100%;"></canvas>
+</body>
+</html>
