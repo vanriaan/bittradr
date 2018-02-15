@@ -1,30 +1,109 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-<title>BitTradr</title>
-<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<head>
+		<title>BitTradr</title>
+		<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="/css/bulma.css" />
+		<link rel="stylesheet" href="/css/overrides.css" />
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta charset="utf-8" />
+    	<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 
-<script>
-	$(document).ready(function() {
-		setInterval(fetchCurrentPrice, 1000);
-	});
-
-	function fetchCurrentPrice() {
-		$.get({
-			url : "/api/bitcoin/currentPrice",
-			success : updateCurrentPrice,
-		});
-	}
-
-	function updateCurrentPrice(currentPrice) {
-		$("#currentPrice").html(
-				"Current USD Price for 1 Bitcoin is: $" + currentPrice);
-	}
-</script>
-</head>
-<body>
-	<p id="currentPrice" th:text="'Current USD Price for 1 Bitcoin is: $' + ${currentPrice} + '!'" />
-</body>
+		<script>
+			$(document).ready(function() {
+				setInterval(fetchCurrentPrice, 1000);
+			});
+		
+			function fetchCurrentPrice() {
+				$.get({
+					url : "/api/bitcoin/currentPrice",
+					success : updateCurrentPrice,
+				});
+			}
+		
+			function updateCurrentPrice(currentPrice) {
+				$("#currentPrice").html(
+						"Current USD Price for 1 Bitcoin is: $" + currentPrice);
+			}
+		</script>
+	</head>
+	<body>
+		<section class="hero is-primary">
+		  <!-- Hero head: will stick at the top -->
+		  <div class="hero-head">
+		    <nav class="navbar">
+		      <div class="container">
+		        <div class="navbar-brand">
+		          <a class="navbar-item">
+		            
+		          </a>
+		          <span class="navbar-burger burger" data-target="navbarMenuHeroA">
+		            <span></span>
+		            <span></span>
+		            <span></span>
+		          </span>
+		        </div>
+		        <div id="navbarMenuHeroA" class="navbar-menu">
+		          <div class="navbar-end">
+		            <a class="navbar-item is-active">
+		              Home
+		            </a>
+		            <a class="navbar-item">
+		              Item 2
+		            </a>
+		            <a class="navbar-item">
+		              Item 3
+		            </a>
+		            <span class="navbar-item">
+		              <a class="button is-primary is-inverted">
+		                <span class="icon">
+		                  <i class="fab fa-github"></i>
+		                </span>
+		                <span>Item with icon</span>
+		              </a>
+		            </span>
+		          </div>
+		        </div>
+		      </div>
+		    </nav>
+		  </div>
+		
+		  <!-- Hero content: will be in the middle -->
+		  <div class="hero-body">
+		    <div class="container">
+		    	<figure class="image is-96x96 hero-logo">
+		    		<img src="/images/Bitcoin.png" alt="Logo" width="100px" height="100px" />
+		    	</figure>
+		      <h1 class="title">
+		        BitTradr
+		      </h1>
+		      <h2 class="subtitle">
+		        If you find youself doing it more than once, automate it!
+		      </h2>
+		    </div>
+		  </div>
+		
+		  <!-- Hero footer: will stick at the bottom -->
+		  <div class="hero-foot">
+		    <nav class="tabs">
+		      <div class="container">
+		        <ul>
+		          <li class="is-active"><a>Overview</a></li>
+		          <li><a>Item 1</a></li>
+		          <li><a>Item 2</a></li>
+		          <li><a>Item 3</a></li>
+		          <li><a>Item 4</a></li>
+		          <li><a>Item 5</a></li>
+		        </ul>
+		      </div>
+		    </nav>
+		  </div>
+		</section>
+		<section class="section">
+	    	<div class="container">
+				<p id="currentPrice" th:text="'Current USD Price for 1 Bitcoin is: $' + ${currentPrice} + '!'" />
+	    	</div>
+	  	</section>
+	</body>
 </html>

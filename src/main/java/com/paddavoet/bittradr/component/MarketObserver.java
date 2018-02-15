@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import com.paddavoet.bittradr.integration.response.bitfinex.QueryMarketResponse;
 import com.paddavoet.bittradr.market.ExchangeRates;
 import com.paddavoet.bittradr.market.TradeValueDirection;
+import com.paddavoet.bittradr.component.publisher.MarketChangePublisher;
+import com.paddavoet.bittradr.entity.MarketChange;
 import com.paddavoet.bittradr.entity.TradeVelocity;
 
 /**
@@ -23,37 +25,41 @@ import com.paddavoet.bittradr.entity.TradeVelocity;
  */
 @Component
 public class MarketObserver {
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private TradeVelocityRepository tradeVelocityRepository;
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(MarketObserver.class);
 	
 	private ExchangeRates exchangeRates = new ExchangeRates();
 	
 	private List<TradeVelocity> velocities = new ArrayList<>();
 	
-	public void updateVelocities(QueryMarketResponse response) {
+	/**
+	 * Takes the {@link QueryMarketResponse} and creates a {@link TradeVelocity} entity to represent the velocity of the change.
+	 * @param response
+	 * @return returns the velocity created.
+	 */
+	public TradeVelocity updateVelocities(QueryMarketResponse response) {
 		TradeVelocity velocity = new TradeVelocity();
 		
 		velocity.setTradeValue(response.getLastPrice());
 
 		if (getVelocities().size() == 0) {
-			LOGGER.debug("creating initial velocity with value {}", velocity.getTradeValue());
+			log.debug("creating initial velocity with value {}", velocity.getTradeValue());
 			velocity.setDirection(TradeValueDirection.UNCHANGED);
 			velocity.setMagnitude(BigDecimal.ZERO);
 		} else {
-			LOGGER.debug("creating another velocity");
+			log.debug("creating another velocity");
 			TradeVelocity previous = getVelocities().get(getVelocities().size() -1);
 			
 			BigDecimal previousValue = previous.getTradeValue();
-			LOGGER.debug("previous value {}", previousValue);
+			log.debug("previous value {}", previousValue);
 
 			BigDecimal currentValue = response.getLastPrice();
-			LOGGER.debug("current value {}", currentValue);
+			log.debug("current value {}", currentValue);
 
 			BigDecimal absoluteDifference = previousValue.subtract(currentValue).abs();
-			LOGGER.debug("abs difference {}", absoluteDifference);
+			log.debug("abs difference {}", absoluteDifference);
 			
 			if (BigDecimal.ZERO.compareTo(absoluteDifference) != 0) {
 				BigDecimal percentageChanged = (absoluteDifference.divide(previousValue, 5, RoundingMode.HALF_UP)); 
@@ -72,13 +78,15 @@ public class MarketObserver {
 				velocity.setDirection(TradeValueDirection.UNCHANGED);
 			}
 
-			LOGGER.info("Added new Velocity. Direction [{}] and magnitude [{}]", velocity.getDirection(), velocity.getMagnitude());
+			log.info("Added new Velocity. Direction [{}] and magnitude [{}]", velocity.getDirection(), velocity.getMagnitude());
 		}
 
 		if (tradeVelocityRepository != null) {
 			tradeVelocityRepository.save(velocity);
 		}
 		getVelocities().add(velocity);
+		
+		return velocity;
 	}
 	
 	public ExchangeRates getExchangeRates() {

@@ -4,22 +4,32 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.paddavoet.bittradr.entity.BalanceHistoryEntity;
+import com.paddavoet.bittradr.entity.MarketChange;
 import com.paddavoet.bittradr.entity.PastTradeEntity;
+import com.paddavoet.bittradr.entity.TradeVelocity;
 import com.paddavoet.bittradr.entity.WalletBalanceEntity;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.paddavoet.bittradr.application.ApplicationConfig;
 import com.paddavoet.bittradr.component.MarketObserver;
+import com.paddavoet.bittradr.component.publisher.MarketChangePublisher;
 import com.paddavoet.bittradr.integration.request.bitfinex.Order;
 import com.paddavoet.bittradr.integration.response.bitfinex.QueryMarketResponse;
 import com.paddavoet.bittradr.service.MarketService;
 
 @Service
 public class MarketServiceImpl implements MarketService {
-
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	
 	@Autowired
 	private MarketObserver marketObserver;
+	
+	@Autowired
+	private MarketChangePublisher publisher;
 
 	/*
 	 * returns the price in USD
@@ -30,7 +40,10 @@ public class MarketServiceImpl implements MarketService {
 
 	public void handleQueryMarketResponse(QueryMarketResponse response) {
 		marketObserver.getExchangeRates().updateRates(response);
-		marketObserver.updateVelocities(response);
+		
+		TradeVelocity velocity = marketObserver.updateVelocities(response);
+		
+		createAndPublishMarketChangeEvent(response, velocity);
 	}
 
 	@Override
@@ -142,5 +155,20 @@ public class MarketServiceImpl implements MarketService {
 		}
 
 		return averageFee.abs();
+	}
+
+	@Override
+	public void createAndPublishMarketChangeEvent(QueryMarketResponse marketResponse, TradeVelocity velocity) {
+		MarketChange marketChange = new MarketChange(marketResponse, velocity);
+		
+		try {
+			
+			publisher.publishChange(marketChange);
+			log.info("published market_change event");
+			
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

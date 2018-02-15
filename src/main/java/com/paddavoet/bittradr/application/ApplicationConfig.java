@@ -4,10 +4,8 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-import java.io.InputStream;
 import java.util.List;
 
-import com.paddavoet.bittradr.market.jobs.SyncTradeHistoryJob;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -15,12 +13,12 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 
 import com.paddavoet.bittradr.component.integration.BitFinExAPI;
 import com.paddavoet.bittradr.market.jobs.QueryMarketStateJob;
+import com.paddavoet.bittradr.market.jobs.SyncTradeHistoryJob;
 import com.paddavoet.bittradr.trader.quartz.AutowiringSpringBeanJobFactory;
 
 /**

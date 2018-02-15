@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.runners.MockitoJUnit44Runner;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
  * Test the velocity updates for UP, DOWN and UNCHANGED
  * @author Deathrid3r747
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnit44Runner.class)
 public class MarketObserverTest {
     private MarketObserver marketObserver;
 
